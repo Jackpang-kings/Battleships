@@ -1,41 +1,55 @@
 # **Battleships Assignment**
+
 #### _Jack Pang_
+
 # Design
-## **Class Diagram**-Ship
+
+----
+
+## **Class Diagram** Ship
+
 ```mermaid
+
 classDiagram
-    class Ship{
-        +int damaged
-        +int undamaged
-		+boolean sunk
-		+int length
-		+int[] x
-		+int[] y
-		+CheckSunk()
-    }
+
+    class Ship{
+
+        +int damaged
+
+        +int undamaged
+
+        +boolean sunk
+
+        +int length
+
+        +int[] x
+
+        +int[] y
+
+        +CheckSunk()
+		+CheckHit()
+    }
+
 ```
-## **Class Ship**
-### **Properties**:
+## Class Ship
+### Properties:
 - int damaged
-- int undamaged
 - boolean sunk
 - int length
 - int[] x
 - int[] y
 
-### **Initializer**:
+### Initializer:
 ```
 PUBLIC Damamged AS INT get{damaged}
-PUBLIC Undamaged AS INT get{undamaged}
 PUBLIC Sunk AS BOOLEAN get{sunk}
 PUBLIC X AS INT[] get{x}set{value = x}
 PUBLIC Y AS INT[] get{y}set{value = y}
 ```
-### **Constructor**:
+### Constructor:
 ```
 PUBLIC PROCEDURE Ship (INT l = 0, INT d = 0)
 	damaged = d
-	undamaged = l
 	length = l
 	sunk = false
 	x = new int[l]
@@ -47,27 +61,57 @@ PUBLIC PROCEDURE Ship (INT l = 0, INT d = 0)
 	- Out: boolean sunk
 ```
 CREATE FUNCTION Checksunk()
-	IF damaged = undamaged THEN
+	IF damaged = length THEN
 		sunk = true
 	ENDIF
 	RETURN sunk
 ENDFUNCTION
 ```
-## **Class Diagram**-Gameboard
+
+- CheckHit()
+	- In: int x, int y
+	- Out: boolean hit
+```
+CREATE FUNCTION CheckHit(int x, int y)
+	DECLARE hit AS BOOLEAN = false
+	DECLARE len AS ships[i].Length
+	FOR i = 0 TO len - 1
+		IF Ship.X[i] = x AND Ship.Y[i] = y THEN
+			Ship.Damage++
+		ENDIF
+	NEXT
+	RETURN hit
+ENDFUNCTION
+```
+----
+## **Class Diagram** Gameboard
+
 ```mermaid
-classDiagram
-    class Gameboard{
-        +int[10,10] board
-		+ Ship[] ships
-		+Place()
-		+PlaceDirection()
-		+PlaceShip()
-		+ValidShip()
-		+DisplayBoard()
-		+DisplayStatus()
-		+MaskedBoard()
-		+CheckHit()
-    }
+
+    classDiagram
+
+        class Gameboard{
+
+            +int[10,10] board
+
+            + Ship[] ships
+
+            +Place()
+
+            +PlaceDirection()
+
+            +PlaceShip()
+
+            +ValidShip()
+
+            +DisplayBoard()
+
+            +DisplayStatus()
+
+            +MaskedBoard()
+
+        }
+
 ```
 ## Class Gameboard
 ### Properties:
@@ -215,51 +259,46 @@ CREATE PROCEDURE MaskedBoard(int[10,10] board)
 	ENDFOR
 ENDPROCEDURE
 ```
-- CheckHit()
-	- In: int x, int y, Ship[] ships
-	- Out: boolean hit
-```
-CREATE FUNCTION CheckHit(int x, int y, ships AS Ship[])
-	DECLARE hit AS BOOLEAN = false
-	FOR i = 0 TO 4 
-		DECLARE len AS ships[i].Length
-		FOR j = 0 TO len - 1
-			IF ships[i].X[j] = x AND ships[i].Y[j] = y THEN
-				ship[i].Damage++
-				ship[i].Undamage--
-			ENDIF
-		NEXT
-	NEXT
-	RETURN hit
-ENDFUNCTION
-```
-## **Class Diagram**-Player
+
+----
+## **Class Diagram** Player
+
 ```mermaid
+
 classDiagram
-    class Player{
-        +Gameboard gboard
-        +int[10,10] mboard
-		+string name
-		+boolean win
-		+Shoot()
-		+CheckWin()
-    }
+
+    class Player{
+
+        +Gameboard gboard
+
+        +int[10,10] mboard
+
+        +string name
+
+        +boolean win
+
+        +Shoot()
+
+        +CheckWin()
+
+    }
+
 ```
-## **Class Player**
-### **Properties**
+## Class Player
+### Properties#
 - Gameboard gboard
 - int[10,10] mboard
 - string name
 - boolean win
 
-### **Initializer**:
+### Initializer:
 ```
 PUBLIC Name AS STRING {get(name),set(name = value)}
 PUBLIC Gboard AS Gameboard {get(gboard),set(gboard = value)}
 PUBLIC Win AS BOOLEAN {get(win),set(win = value)}
 ```
 
-### **Constructor**:
+### Constructor:
 ```
 PUBLIC Player(string n = "player", w = false)
 	name = n
@@ -272,17 +311,19 @@ PUBLIC Player(string n = "player", w = false)
 	ENDFOR
 ```
 
-### **Methods**:
+### Methods:
 - Shoot()
 	- In: player.Gboard nshooter, int x, int y
 	- Out: outcome boolean
 ```
 CREATE FUNCTION Shoot(nshooter AS player.Gboard, int x, int y)
 	DECLARE outcome AS BOOLEAN = false
-	IF nshooter.CheckHit(x,y,nshooter.ships) = true THEN
-		nshooter.board[x,y] = nshooter.board[x,y] - 2
-		outcome = true
-	ENDIF
+	FOR i = 0 TO 4
+		IF nshooter.ships[i].CheckHit(x,y) = true THEN
+			nshooter.board[x,y] = nshooter.board[x,y] - 2
+			outcome = true
+		ENDIF
+	NEXT
 	RETURN outcome
 ENDFUNCTION
 ```
@@ -293,7 +334,7 @@ ENDFUNCTION
 CREATE PROCEDURE CheckWin(nshooter AS Player)
 	DECLARE counter AS INT = 0
 	FOR i = 0 TO 4
-		IF nshooter.Gboard.ships[i].CheckSunk = true THEN
+		IF nshooter.Gboard.ships[i].CheckSunk() = true THEN
 			counter++
 		ENDIF
 	NEXT
@@ -304,6 +345,7 @@ CREATE PROCEDURE CheckWin(nshooter AS Player)
 	ENDIF
 ENDPROCEDURE
 ```
+----
 ## Class Program
 ### Methods
 - Main()
@@ -354,8 +396,8 @@ CREATE PROCEDURE ShPhase(shooter AS Player,nshooter AS Player)
 	OUTPUT "ENTER the y coordinates to shoot"
 	DECLARE y AS INT = CheckInput(USERINPUT)
 	shooter.mboard[x,y] = 1
-	DisplayOutcome(nshooter.Shoot(x,y))
 	shooter.Gboard.Maskboard(shooter.mboard)
+	DisplayOutcome(nshooter.Shoot(x,y))
 	shooter.CheckWin(nshooter)
 ENDPROCEDURE
 ```
