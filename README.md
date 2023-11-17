@@ -1,6 +1,21 @@
-# Decomposition
-## Class Ship
-### Properties:
+# **Battleships Assignment**
+#### _Jack Pang_
+# Design
+## **Class Diagram**-Ship
+```mermaid
+classDiagram
+    class Ship{
+        +int damaged
+        +int undamaged
+		+boolean sunk
+		+int length
+		+int[] x
+		+int[] y
+		+CheckSunk()
+    }
+```
+## **Class Ship**
+### **Properties**:
 - int damaged
 - int undamaged
 - boolean sunk
@@ -8,7 +23,7 @@
 - int[] x
 - int[] y
 
-### Initializer:
+### **Initializer**:
 ```
 PUBLIC Damamged AS INT get{damaged}
 PUBLIC Undamaged AS INT get{undamaged}
@@ -16,7 +31,7 @@ PUBLIC Sunk AS BOOLEAN get{sunk}
 PUBLIC X AS INT[] get{x}set{value = x}
 PUBLIC Y AS INT[] get{y}set{value = y}
 ```
-### Constructor:
+### **Constructor**:
 ```
 PUBLIC PROCEDURE Ship (INT l = 0, INT d = 0)
 	damaged = d
@@ -38,7 +53,22 @@ CREATE FUNCTION Checksunk()
 	RETURN sunk
 ENDFUNCTION
 ```
-
+## **Class Diagram**-Gameboard
+```mermaid
+classDiagram
+    class Gameboard{
+        +int[10,10] board
+		+ Ship[] ships
+		+Place()
+		+PlaceDirection()
+		+PlaceShip()
+		+ValidShip()
+		+DisplayBoard()
+		+DisplayStatus()
+		+MaskedBoard()
+		+CheckHit()
+    }
+```
 ## Class Gameboard
 ### Properties:
 - int[10,10] board
@@ -203,22 +233,33 @@ CREATE FUNCTION CheckHit(int x, int y, ships AS Ship[])
 	RETURN hit
 ENDFUNCTION
 ```
-
-## Class Player
-### Properties#
+## **Class Diagram**-Player
+```mermaid
+classDiagram
+    class Player{
+        +Gameboard gboard
+        +int[10,10] mboard
+		+string name
+		+boolean win
+		+Shoot()
+		+CheckWin()
+    }
+```
+## **Class Player**
+### **Properties**
 - Gameboard gboard
 - int[10,10] mboard
 - string name
 - boolean win
 
-### Initializer:
+### **Initializer**:
 ```
 PUBLIC Name AS STRING {get(name),set(name = value)}
 PUBLIC Gboard AS Gameboard {get(gboard),set(gboard = value)}
 PUBLIC Win AS BOOLEAN {get(win),set(win = value)}
 ```
 
-### Constructor:
+### **Constructor**:
 ```
 PUBLIC Player(string n = "player", w = false)
 	name = n
@@ -231,7 +272,7 @@ PUBLIC Player(string n = "player", w = false)
 	ENDFOR
 ```
 
-### Methods:
+### **Methods**:
 - Shoot()
 	- In: player.Gboard nshooter, int x, int y
 	- Out: outcome boolean
