@@ -5,23 +5,31 @@
 - int undamaged
 - boolean sunk
 - int length
+- int[] x
+- int[] y
 
 ### Initializer:
 ```
 PUBLIC Damamged AS INT get{damaged}
 PUBLIC Undamaged AS INT get{undamaged}
 PUBLIC Sunk AS BOOLEAN get{sunk}
+PUBLIC X AS INT[] get{x}set{value = x}
+PUBLIC Y AS INT[] get{y}set{value = y}
 ```
 ### Constructor:
 ```
-PUBLIC PROCEDURE Ship (INT d = 0, INT l = 0)
+PUBLIC PROCEDURE Ship (INT l = 0, INT d = 0)
 	damaged = d
 	undamaged = l
 	length = l
 	sunk = false
+	x = new int[l]
+	y = new int[l]
 ```
 ### Methods:
-- Checksunk
+- Checksunk()
+	- In: none
+	- Out: boolean sunk
 ```
 CREATE FUNCTION Checksunk()
 	IF damaged = undamaged THEN
@@ -45,18 +53,18 @@ PUBLIC Gameboard
 			board[i,j] = 0
 		ENDFOR 
 	ENDFOR
-	ships[0].Length = 2
-	ships[1].Length = 3
-	ships[2].Length = 3
-	ships[3].Length = 4
-	ships[4].Length = 5
+	ships[0] = new Ship(0,2)
+	ships[1] = new Ship(0,3)
+	ships[2] = new Ship(0,3)
+	ships[3] = new Ship(0,4)
+	ships[4] = new Ship(0,5)
 ```
 ### Methods:
 - Place
 	- In: int n //Length of the ship
 	- Out: int board
 ```
-CREATE PROEDURE Place(INT n,int[10,10] board)
+CREATE PROEDURE Place(INT n,INT[10,10] board)
 	//Enter x coordinates 0-9
 	DECLARE x AS INT = Program.CheckInput(USERINPUT)
 	//Enter y coordinates 0-9
@@ -66,7 +74,7 @@ ENDPROCEDURE
 ```
 - PlaceDirection
 	- In: None
-	- Out: STRING d
+	- Out: string d
 ```
 CREATE FUNCTION PlaceDirection()
 	DECLARE d AS STRING
@@ -84,10 +92,10 @@ CREATE FUNCTION PlaceDirection()
 ENDFUNCTION
 ```
 - PlaceShip
-	- In: INT n, INT x, INT y
-	- Out: board
+	- In: int n, int x, int y, int[10,10] board
+	- Out: int[10,10] board
 ```
-CREATE FUNCTION PlaceShip(INT n, INT x, INT y, INT[10,10] board)
+CREATE FUNCTION PlaceShip(INT n, INT x, INT y, int[10,10] board)
 	DECLARE s AS Ship = ships[n]
 	DECLARE len AS INT = s.Length
 	WHILE success = false 
@@ -99,10 +107,15 @@ CREATE FUNCTION PlaceShip(INT n, INT x, INT y, INT[10,10] board)
 			IF PLaceDirection() = "1" THEN
 				FOR INT i = 0 To len - 1
 					board[x,y+i] = ship[i]
+					ship[n].Y[i] = y+i
+					ship[n].X[i] = x
 				ENDFOR
+				
 			ELSE 
 				FOR INT i = 0 To len - 1
 					board[x+i,y] = 1
+					ship[n].X[i] = x+i
+					ship[n].Y[i] = y
 				ENDFOR
 			ENDIF
 			success = true
@@ -130,8 +143,10 @@ CREATE FUNCTION ValidShip(int n, int x, int y, int[10,10] board)
 ENDFUNCTION
 ```
 - DisplayBoard
+	- In: int[10,10] board
+	- Out: none
 ```
-CREATE PROCEDURE DisplayBoard(Gameboard board)
+CREATE PROCEDURE DisplayBoard(int[10,10] board)
 	DECLARE b AS INT[,] = Gameboard.board[n]
 	DECLARE len AS INT = b.Length
 	FOR INT i = 0 To len - 1
@@ -142,8 +157,10 @@ CREATE PROCEDURE DisplayBoard(Gameboard board)
 ENDPROCEDURE
 ```
 - DisplayStatus
+	- In: int[10,10] board
+	- Out: none
 ```
-CREATE PROCEDURE DisplayStatus(Gameboard board)
+CREATE PROCEDURE DisplayStatus(int[10,10] board)
 	FOR i = 0 TO 4
 		OUTPUT "{board.ship[i].Damaged}"
 		OUTPUT "{board.ship[i].Undamaged}"
@@ -156,18 +173,36 @@ CREATE PROCEDURE DisplayStatus(Gameboard board)
 ENDPROCEDURE
 ```
 - MaskedBoard
+	-  In: int[10,10] board
+	- Out: none
 ```
-CREATE FUNCTION MaskedBoard(Gameboard board)
-	DECLARE b AS INT[,] = Gameboard.board[n]
+CREATE PROCEDURE MaskedBoard(int[10,10] board)
 	DECLARE len AS INT = b.Length
 	FOR INT i = 0 To len - 1
 		FOR INT j = 0 To len - 1
 			OUTPUT "b[i,j]".PadRight
 		ENDFOR
 	ENDFOR
+ENDPROCEDURE
+```
+- CheckHit()
+	- In: int x, int y, Ship[] ships
+	- Out: boolean hit
+```
+CREATE FUNCTION CheckHit(int x, int y, ships AS Ship[])
+	DECLARE hit AS BOOLEAN = false
+	FOR i = 0 TO 4 
+		DECLARE len AS ships[i].Length
+		FOR j = 0 TO len - 1
+			IF ships[i].X[j] = x AND ships[i].Y[j] = y THEN
+				ship[i].Damage++
+				ship[i].Undamage--
+			ENDIF
+		NEXT
+	NEXT
+	RETURN hit
 ENDFUNCTION
 ```
-
 
 ## Class Player
 ### Properties#
@@ -180,6 +215,7 @@ ENDFUNCTION
 ```
 PUBLIC Name AS STRING {get(name),set(name = value)}
 PUBLIC Gboard AS Gameboard {get(gboard),set(gboard = value)}
+PUBLIC Win AS BOOLEAN {get(win),set(win = value)}
 ```
 
 ### Constructor:
@@ -196,43 +232,65 @@ PUBLIC Player(string n = "player", w = false)
 ```
 
 ### Methods:
-- Shoot
+- Shoot()
+	- In: player.Gboard nshooter, int x, int y
+	- Out: outcome boolean
 ```
-CREATE FUNCTION Shoot(player.Gboard AS nshooter, int x, int y)
+CREATE FUNCTION Shoot(nshooter AS player.Gboard, int x, int y)
 	DECLARE outcome AS BOOLEAN = false
-	IF nshooter.Gboard.board[x,y] = 1 THEN
-		nshooter.Gboard.board[x,y] = nshooter.Gboard.board[x,y] - 2
+	IF nshooter.CheckHit(x,y,nshooter.ships) = true THEN
+		nshooter.board[x,y] = nshooter.board[x,y] - 2
 		outcome = true
 	ENDIF
 	RETURN outcome
 ENDFUNCTION
 ```
-- CheckWin
+- CheckWin()
+	- In: Player nshooter
+	- Out: nshooter.win
 ```
-CREATE FUNCTION CheckWin()
-	DECLARE result AS BOOLEAN
-		
-	return result
-ENDFUNCTION
+CREATE PROCEDURE CheckWin(nshooter AS Player)
+	DECLARE counter AS INT = 0
+	FOR i = 0 TO 4
+		IF nshooter.Gboard.ships[i].CheckSunk = true THEN
+			counter++
+		ENDIF
+	NEXT
+	IF counter = 5 THEN
+		nshooter.win = true
+	ELSE
+		nshooter.win = false
+	ENDIF
+ENDPROCEDURE
 ```
 ## Class Program
 ### Methods
 - Main()
+	- In: none
+	- Out: none
 ```
-DECLARE player1 AS Player
-DECLARE player2 AS Player
-OUTPUT "ENTER 1st Player name"
-DECLARE player1.Name AS STRING = USERINPUT
-OUTPUT "ENTER 2nd Player name"
-DECLARE player2.Name AS STRING = USERINPUT
-SetPhase(player1)
-SetPhase(player2)
-
-ShPhase(player1,player2)
-ShPhase(player2,player1)
+CREATE PROCEDURE Main()
+	DECLARE player1 AS Player
+	DECLARE player2 AS Player
+	OUTPUT "ENTER 1st Player name"
+	DECLARE player1.Name AS STRING = USERINPUT
+	OUTPUT "ENTER 2nd Player name"
+	DECLARE player2.Name AS STRING = USERINPUT
+	SetPhase(player1)
+	SetPhase(player2)
+	WHILE player1.Win = false AND player2.Win = false
+		ShPhase(player1,player2)
+		ShPhase(player2,player1)
+	ENDWHILE
+	IF player1.Win = true THEN
+		OUTPUT "{player1.Name} Win"
+	ELSE
+		OUTPUT "{player2.Name} Win"
+	ENDIF
+ENDPROCEDURE
 ```
 - SetupPhase
-	- In: Player
+	- In: Player player
 	- Out: None
 ```
 CREATE PROCEDURE SetPhase(player AS Player)
@@ -245,7 +303,7 @@ ENDPROCEDURE
 ```
 
 - ShootingPhase
-	- In: player AS Player
+	- In: Player shooter, Player nshooter
 	- Out: None
 ```
 CREATE PROCEDURE ShPhase(shooter AS Player,nshooter AS Player)
@@ -256,12 +314,13 @@ CREATE PROCEDURE ShPhase(shooter AS Player,nshooter AS Player)
 	DECLARE y AS INT = CheckInput(USERINPUT)
 	shooter.mboard[x,y] = 1
 	DisplayOutcome(nshooter.Shoot(x,y))
-	player.Gboard.Maskboard()
+	shooter.Gboard.Maskboard(shooter.mboard)
+	shooter.CheckWin(nshooter)
 ENDPROCEDURE
 ```
 - CheckInput 
-	- In: None _Whatever needs to be converted into INT 
-	- Out: INT y
+	- In: string x _Whatever needs to be converted into INT 
+	- Out: int y
 ```
 CREATE FUNCTION CheckInput(STRING x)
 	DECLARE success AS BOOLEAN = false
@@ -278,11 +337,14 @@ CREATE FUNCTION CheckInput(STRING x)
 ENDFUNCTION
 ```
 - DisplayOutcome
+	- In: boolean result _from Shoot_
+	- Out: none
 ```
-CREATE PROCEDURE DisplayOutcome(boolean result)
+CREATE PROCEDURE DisplayOutcome(BOOLEAN result)
 	IF result = true
 		OUTPUT "Hitted"
 	ELSE
 		OUTPUT "Nothing is hit"
+	ENDIF
 ENDPROCEDURE
 ```
