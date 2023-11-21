@@ -1,0 +1,4 @@
+C:\Users\jpang18\Documents\CompSci\Battleships\obj\Debug\net7.0\Battleships.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\jpang18\Documents\CompSci\Battleships\obj\Debug\net7.0\Battleships.AssemblyInfoInputs.cache
+C:\Users\jpang18\Documents\CompSci\Battleships\obj\Debug\net7.0\Battleships.AssemblyInfo.cs
+C:\Users\jpang18\Documents\CompSci\Battleships\obj\Debug\net7.0\Battleships.csproj.CoreCompileInputs.cache

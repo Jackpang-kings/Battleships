@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "41J+OzcJip0/YoYiHPZuYYwMbU9t6dx28UEFGZyufb92+oQWTDoJsW+nw0lth44+RbnJEL1jTjc7GOxrwT0LhQ==",
+  "dgSpecHash": "QlJjrXXq00QqDzCPSQ4PCxatEpJeV9YjmL7xIEyJVIz1ifcbWl2YJaHHHjvCH4TfGf7NkDWEv1PYBnsXYO7yQQ==",
   "success": true,
-  "projectFilePath": "C:\\Users\\jpang18\\Documents\\Compsci\\Battleships\\Battleships.csproj",
+  "projectFilePath": "C:\\Users\\jpang18\\Documents\\CompSci\\Battleships\\Battleships.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }

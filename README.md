@@ -16,8 +16,6 @@ classDiagram
 
         +int damaged
 
-        +int undamaged
-
         +boolean sunk
 
         +int length
@@ -49,11 +47,11 @@ PUBLIC Y AS INT[] get{y}set{value = y}
 ### Constructor:
 ```
 PUBLIC PROCEDURE Ship (INT l = 0, INT d = 0)
-	damaged = d
-	length = l
-	sunk = false
-	x = new int[l]
-	y = new int[l]
+	Damaged = d
+	Length = l
+	Sunk = false
+	X = new int[l]
+	Y = new int[l]
 ```
 ### Methods:
 - Checksunk()
@@ -69,15 +67,15 @@ ENDFUNCTION
 ```
 
 - CheckHit()
-	- In: int x, int y
+	- In: int x, int y, Ship s
 	- Out: boolean hit
 ```
-CREATE FUNCTION CheckHit(int x, int y)
+CREATE FUNCTION CheckHit(int x, int y, Ship s)
 	DECLARE hit AS BOOLEAN = false
-	DECLARE len AS ships[i].Length
+	DECLARE len AS s.Length
 	FOR i = 0 TO len - 1
-		IF Ship.X[i] = x AND Ship.Y[i] = y THEN
-			Ship.Damage++
+		IF s.X[i] = x AND s.Y[i] = y THEN
+			s.Damage++
 		ENDIF
 	NEXT
 	RETURN hit
@@ -108,8 +106,6 @@ ENDFUNCTION
 
             +DisplayStatus()
 
-            +MaskedBoard()
-
         }
 
 ```
@@ -118,6 +114,11 @@ ENDFUNCTION
 - int[10,10] board
 - Ship[] ships
 
+### Initializer
+```
+PUBLIC Board AS int[,] get{board}set{value = board}
+PUBLIC Ships AS Ship[] get{ships}
+```
 ### Constructor:
 ```
 PUBLIC Gameboard
@@ -138,7 +139,7 @@ PUBLIC Gameboard
 	- In: int n //Length of the ship
 	- Out: int board
 ```
-CREATE PROEDURE Place(INT n,INT[10,10] board)
+CREATE PROEDURE Place(INT n)
 	//Enter x coordinates 0-9
 	DECLARE x AS INT = Program.CheckInput(USERINPUT)
 	//Enter y coordinates 0-9
@@ -166,43 +167,40 @@ CREATE FUNCTION PlaceDirection()
 ENDFUNCTION
 ```
 - PlaceShip
-	- In: int n, int x, int y, int[10,10] board
+	- In: int n, int x, int y
 	- Out: int[10,10] board
 ```
-CREATE FUNCTION PlaceShip(INT n, INT x, INT y, int[10,10] board)
+CREATE FUNCTION PlaceShip(INT n, INT x, INT y)
 	DECLARE s AS Ship = ships[n]
 	DECLARE len AS INT = s.Length
-	WHILE success = false 
-		IF len+y > 9 OR len+x > 9 OR ValidShip(n,x,y,board) = false THEN
-			OUTPUT "CANNOT PUT SHIP THERE"
-			OUTPUT "ENTER x,y again"
-			Place(n,board)
+	IF len+y > 9 OR len+x > 9 OR ValidShip(n,x,y,board) = false THEN
+		OUTPUT "CANNOT PUT SHIP THERE"
+		OUTPUT "ENTER x,y again"
+		Place(n)
+	ELSE 
+		IF PLaceDirection() = "1" THEN
+			FOR INT i = 0 To len - 1
+				board[x,y+i] = ship[i]
+				ship[n].Y[i] = y+i
+				ship[n].X[i] = x
+			ENDFOR
+			
 		ELSE 
-			IF PLaceDirection() = "1" THEN
-				FOR INT i = 0 To len - 1
-					board[x,y+i] = ship[i]
-					ship[n].Y[i] = y+i
-					ship[n].X[i] = x
-				ENDFOR
-				
-			ELSE 
-				FOR INT i = 0 To len - 1
-					board[x+i,y] = 1
-					ship[n].X[i] = x+i
-					ship[n].Y[i] = y
-				ENDFOR
-			ENDIF
-			success = true
-			RETURN board
+			FOR INT i = 0 To len - 1
+				board[x+i,y] = 1
+				ship[n].X[i] = x+i
+				ship[n].Y[i] = y
+			ENDFOR
 		ENDIF
-	ENDWHILE
+	ENDIF
+	RETURN board
 ENDFUNCTION
 ```
 - ValidShip
-	- In: Int x, Int y, Int n, int[10,10] board
+	- In: Int x, Int y, Int n
 	- Out: boolean valid
 ```
-CREATE FUNCTION ValidShip(int n, int x, int y, int[10,10] board)
+CREATE FUNCTION ValidShip(int n, int x, int y)
 	DECLARE valid AS BOOLEAN = false
 	DECLARE count AS INT = 0
 	FOR INT i = 0 To n - 1
@@ -217,45 +215,30 @@ CREATE FUNCTION ValidShip(int n, int x, int y, int[10,10] board)
 ENDFUNCTION
 ```
 - DisplayBoard
-	- In: int[10,10] board
+	- In: none
 	- Out: none
 ```
-CREATE PROCEDURE DisplayBoard(int[10,10] board)
-	DECLARE b AS INT[,] = Gameboard.board[n]
-	DECLARE len AS INT = b.Length
+CREATE PROCEDURE DisplayBoard()
+	DECLARE len AS INT = board.Length
 	FOR INT i = 0 To len - 1
 		FOR INT j = 0 To len - 1
-			OUTPUT "b[i,j]".PadRight
+			OUTPUT "board[i,j]".PadRight
 		ENDFOR
 	ENDFOR
 ENDPROCEDURE
 ```
 - DisplayStatus
-	- In: int[10,10] board
+	- In: none
 	- Out: none
 ```
-CREATE PROCEDURE DisplayStatus(int[10,10] board)
+CREATE PROCEDURE DisplayStatus()
 	FOR i = 0 TO 4
-		OUTPUT "{board.ship[i].Damaged}"
-		OUTPUT "{board.ship[i].Undamaged}"
-		IF board.ship[i].Sunk = false THEN
-			OUTPUT "ship {ship[i].Length} Not Sunk"
+		OUTPUT "{ships[i].Damaged}"
+		IF ships[i].Sunk = false THEN
+			OUTPUT "ship {ships[i].Length} Not Sunk"
 		ELSE 
-			OUTPUT "ship {ship[i].Length} SUNKED"
+			OUTPUT "ship {ships[i].Length} SUNKED"
 		ENDIF
-	ENDFOR
-ENDPROCEDURE
-```
-- MaskedBoard
-	-  In: int[10,10] board
-	- Out: none
-```
-CREATE PROCEDURE MaskedBoard(int[10,10] board)
-	DECLARE len AS INT = b.Length
-	FOR INT i = 0 To len - 1
-		FOR INT j = 0 To len - 1
-			OUTPUT "b[i,j]".PadRight
-		ENDFOR
 	ENDFOR
 ENDPROCEDURE
 ```
@@ -281,11 +264,13 @@ classDiagram
 
         +CheckWin()
 
+		+MaskedBoard()
+
     }
 
 ```
 ## Class Player
-### Properties#
+### Properties
 - Gameboard gboard
 - int[10,10] mboard
 - string name
@@ -295,14 +280,15 @@ classDiagram
 ```
 PUBLIC Name AS STRING {get(name),set(name = value)}
 PUBLIC Gboard AS Gameboard {get(gboard),set(gboard = value)}
+PUBLIC Mboard AS INT[,] {get(mboard),set(mboard = value)}
 PUBLIC Win AS BOOLEAN {get(win),set(win = value)}
 ```
 
 ### Constructor:
 ```
-PUBLIC Player(string n = "player", w = false)
-	name = n
-	win = w
+PUBLIC Player(string n = "player")
+	Name = n
+	Win = w
 	DECLARE len AS INT = mboard.Length 
 	FOR INT i = 0 TO len
 		FOR INT j = 0 TO len
@@ -343,6 +329,19 @@ CREATE PROCEDURE CheckWin(nshooter AS Player)
 	ELSE
 		nshooter.win = false
 	ENDIF
+ENDPROCEDURE
+```
+- MaskedBoard
+	-  In: int [10,10] mboard
+	- Out: none
+```
+CREATE PROCEDURE MaskedBoard(int [10,10] mboard)
+	DECLARE len AS INT = mboard.Length
+	FOR INT i = 0 To len - 1
+		FOR INT j = 0 To len - 1
+			OUTPUT "mboard[i,j]".PadRight
+		ENDFOR
+	ENDFOR
 ENDPROCEDURE
 ```
 ----
@@ -410,13 +409,13 @@ CREATE FUNCTION CheckInput(STRING x)
 	WHILE success = false
 		IF CONVERTTOINT(x, out y) = true THEN
 			success = true
-			RETURN y
 		Else //ask again for input
 			OUTPUT "Wrong INPUT, Enter again"
-			x = USERINPUT
-			CheckInput(x)
+			a = USERINPUT
+			x = a
 		ENDIF
 	ENDWHILE
+	RETURN y
 ENDFUNCTION
 ```
 - DisplayOutcome
