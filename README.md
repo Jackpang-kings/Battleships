@@ -1,10 +1,10 @@
 # **Battleships Assignment**
-
 #### _Jack Pang_
-
+# Content
+1. Design
+2. Code
+3. Test Evidence
 # Design
-
-----
 
 ## **Class Diagram** Ship
 
@@ -429,4 +429,86 @@ CREATE PROCEDURE DisplayOutcome(BOOLEAN result)
 		OUTPUT "Nothing is hit"
 	ENDIF
 ENDPROCEDURE
+```
+----
+# Test Evidence
+## Program
+- Testing classes: Ship, Gameboard and Player
+- Tested: Ship.Length, Gameboard.PlaceShip(), Gameboard.DisplayBoard(), Player.Name
+> This code is to test the function of Placing the ships on the board through entering the x, y coordinates. Then display the board out after the ship is placed
+```
+using System;
+namespace HelloWorld { 
+class Program { 
+static void Main()
+ { 
+    Console.WriteLine("Welcome to BattleShips");
+    Player player1 = new Player();
+    Player player2 = new Player();
+    player1.Name = "Jack";
+    player2.Name = "Don";
+    SetupPhrase(player1);
+    SetupPhrase(player2);
+} 
+public static int CheckInput(string x){
+    bool success = false;
+    int y = 0;
+    while (success == false){
+        if (int.TryParse(x, out y) == true){
+            success = true;
+        }else {
+            Console.WriteLine("Wrong input, Enter again");
+            string a = Console.ReadLine();
+            x = a;
+        }
+    }
+    return y;
+} 
+public static void SetupPhrase(Player player){
+    for (int i = 0;i<5;i++){
+        player.Gboard.PlaceShip(i,i,i,"2");
+    }
+    Console.Write($"{player.Name}:\n");
+    Console.Write("x is Horizontal\n");
+    Console.WriteLine("y is Veritcal\n");
+    player.Gboard.DisplayBoard();
+}
+}
+}
+```
+>Result should look something like this
+>I have included the coordinates of the board, which is the top row, and the first coloumn. 
+>They are printed seperately with another, they are separate with the board.
+```
+Welcome to BattleShips
+Jack:
+x is Horizontal
+y is Veritcal
+
+-1  0   1   2   3   4   5   6   7   8   9   
+0   1   1   0   0   0   0   0   0   0   0   
+1   0   1   1   1   0   0   0   0   0   0   
+2   0   0   1   1   1   0   0   0   0   0   
+3   0   0   0   1   1   1   1   0   0   0   
+4   0   0   0   0   1   1   1   1   1   0   
+5   0   0   0   0   0   0   0   0   0   0   
+6   0   0   0   0   0   0   0   0   0   0   
+7   0   0   0   0   0   0   0   0   0   0   
+8   0   0   0   0   0   0   0   0   0   0   
+9   0   0   0   0   0   0   0   0   0   0   
+Don:
+x is Horizontal
+y is Veritcal
+
+-1  0   1   2   3   4   5   6   7   8   9   
+0   1   1   0   0   0   0   0   0   0   0   
+1   0   1   1   1   0   0   0   0   0   0   
+2   0   0   1   1   1   0   0   0   0   0   
+3   0   0   0   1   1   1   1   0   0   0   
+4   0   0   0   0   1   1   1   1   1   0   
+5   0   0   0   0   0   0   0   0   0   0   
+6   0   0   0   0   0   0   0   0   0   0   
+7   0   0   0   0   0   0   0   0   0   0 
+8   0   0   0   0   0   0   0   0   0   0   
+9   0   0   0   0   0   0   0   0   0   0
 ```

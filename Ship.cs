@@ -10,7 +10,7 @@ class Ship {
     public int Length {get{return length;}set{length = value;}}
     public bool Sunk {get{return sunk;}set{sunk = value;}}
     public int[] X {get{return x;}set{x = value;}}
-    public int[] Y {get{return x;}set{y = value;}}
+    public int[] Y {get{return y;}set{y = value;}}
     public Ship(int l = 1, int d = 1){
         Damaged = d;
         Length = l;
@@ -24,11 +24,11 @@ class Ship {
         }
         return sunk;
     }
-    public bool CheckHit(int x, int y, Ship s){
+    public bool CheckHit(int a, int b, Ship s){
         bool hit = false;
         int len = s.Length;
         for (int i = 0;i<len;i++){
-            if (s.X[i] == x && s.Y[i] == y){
+            if (s.X[i] == a && s.Y[i] == b){
                 s.Damaged++;
                 hit = true;
             }

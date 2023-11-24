@@ -10,9 +10,10 @@ class Player {
     public int[,] Mboard {get{return mboard;}set{mboard = value;}}
     public bool Win {get{return win;}set{win = value;}}
     public Player(string n = "player"){
+        Gboard = new Gameboard();
         Name = n;
         Win = false;
-        int len = mboard.Length;
+        int len = mboard.GetLength(0);
         for (int i = 0;i<len;i++){
             for (int j = 0;j<len;j++){
                 mboard[i,j] = 0;
@@ -21,9 +22,10 @@ class Player {
     }
     public bool Shoot(Player player2, int x, int y){
         bool outcome = false;
-        for (int i = 0; i<player2.Gboard.Ships[i].Length;i++){
+        int len = player2.Gboard.Ships.Length;
+        for (int i = 0; i<len;i++){
             if (player2.Gboard.Ships[i].CheckHit(x,y,player2.Gboard.Ships[i]) == true){
-                player2.Gboard.Board[x,y] = player2.Gboard.Board[x,y] - 2;
+                player2.Gboard.Board[x,y]++;
                 outcome = true;
             }
         }
@@ -41,11 +43,12 @@ class Player {
         }
     }
     public void MaskedBoard(int[,] mboard){
-    int len = mboard.Length;
+    int len = mboard.GetLength(0);
     for (int i = 0;i<len;i++){
         for (int j = 0;j<len;j++){
-            Console.WriteLine($"{mboard[i,j]}".PadRight(10));
+            Console.Write($"{mboard[i,j]}".PadRight(4));
         }  
+        Console.WriteLine("\n");
     }
     }
 } 
