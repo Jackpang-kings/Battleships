@@ -3,10 +3,8 @@ namespace HelloWorld {
 class Gameboard { 
     int[,] board = new int[10,10];
     Ship[] ships = new Ship[5];
-    bool valid = false;
     public int[,] Board {get{return board;}set{board = value;}}
     public Ship[] Ships {get{return ships;}set{ships = value;}}
-    public bool Valid {get{return valid;}set{valid = value;}}
     public Gameboard(){
         Ships[0] = new Ship(2,0);
         Ships[1] = new Ship(3,0);
@@ -28,37 +26,32 @@ class Gameboard {
         Console.WriteLine("1:Vertical 2:Horizontal");
         Console.Write($"Enter direction:");
         string d = PlaceDirection(Console.ReadLine());
-        ValidShip(n,x,y,d);
-        if (Valid == false){
+        board = PlaceShip(n,x,y,d);
+        if (ValidShip(n,x,y,d)==false){
             Place(n);
-        }else{
-            board = PlaceShip(n,x,y,d);
         }
     }
     public bool ValidShip(int n, int x, int y,string d){
         int len = Ships[n].Length;
         int count = 0;
-        if (d == "1"){
-            if (len+y <= 10){
-                for (int i = 0;i<len;i++){
-                    if (board[y+i,x] != 1){
-                        count++;
-                    }
-                } 
-            }
-        }else{
-            if (len+x <= 10){
-                for (int i = 0;i<len;i++){
-                    if (board[y,x+i] != 1){
-                        count++;
-                    }
+        bool valid = false;
+        if (d == "1" && len+y <= 10){
+            for (int i = 0;i<len;i++){
+                if (board[y+i,x] != 1){
+                    count++;
+                }
+            } 
+        }else if (d=="2"&&len+x <= 10){
+            for (int i = 0;i<len;i++){
+                if (board[y,x+i] != 1){
+                    count++;
                 }
             }
         }
         if (count == len){
-            Valid = true;
+            valid = true;
         }
-        return Valid;
+        return valid;
     }
     string PlaceDirection(string d){
         bool success = false;
@@ -77,21 +70,21 @@ class Gameboard {
     public int[,] PlaceShip(int n, int x, int y,string d){
         Ship s = Ships[n];
         int len = s.Length;
-        if (Valid==true){
+        if (ValidShip(n,x,y,d)==true){
             Console.WriteLine("Ship Valid");
             if (d == "1"){
-            for (int i = 0;i<len;i++){
-                board[y+i,x] = 1;
-                s.X[i] = x;
-                s.Y[i] = y+i;
+                for (int i = 0;i<len;i++){
+                    board[y+i,x] = 1;
+                    s.X[i] = x;
+                    s.Y[i] = y+i;
+                }
+            }else{
+                for (int i = 0;i<len;i++){
+                    board[y,x+i] = 1;
+                    s.X[i] = x+i;
+                    s.Y[i] = y;
+                }
             }
-        }else{
-            for (int i = 0;i<len;i++){
-                board[y,x+i] = 1;
-                s.X[i] = x+i;
-                s.Y[i] = y;
-            }
-        }
         }else{
             Console.WriteLine("Ship not Valid");
         }

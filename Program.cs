@@ -73,7 +73,7 @@ public static void Test(){
         pl.Gboard.PlaceShip(4,5,9,"2");
         //return Ship Valid, ship in row 9, column 5, placed Horizontally
         pl.Gboard.PlaceShip(4,5,9,"2");
-        //return Ship not Valid, ship in row 4, column 4
+        //return Ship not Valid
         pl.Gboard.PlaceShip(2,0,9,"2");
         //return Ship Valid, ship in row 9, column 0, placed Horizontally
         pl.Gboard.PlaceShip(3,0,9,"1");
