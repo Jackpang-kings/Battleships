@@ -3,8 +3,10 @@ namespace HelloWorld {
 class Gameboard { 
     int[,] board = new int[10,10];
     Ship[] ships = new Ship[5];
+    bool valid = false;
     public int[,] Board {get{return board;}set{board = value;}}
     public Ship[] Ships {get{return ships;}set{ships = value;}}
+    public bool Valid {get{return valid;}set{valid = value;}}
     public Gameboard(){
         Ships[0] = new Ship(2,0);
         Ships[1] = new Ship(3,0);
@@ -26,17 +28,15 @@ class Gameboard {
         Console.WriteLine("1:Vertical 2:Horizontal");
         Console.Write($"Enter direction:");
         string d = PlaceDirection(Console.ReadLine());
-        if (ValidShip(n,x,y,d) == false){
-            Console.WriteLine("Ship not Valid");
+        ValidShip(n,x,y,d);
+        if (Valid == false){
             Place(n);
         }else{
-            Console.WriteLine("Ship Valid");
             board = PlaceShip(n,x,y,d);
         }
     }
     public bool ValidShip(int n, int x, int y,string d){
         int len = Ships[n].Length;
-        bool valid = false;
         int count = 0;
         if (d == "1"){
             if (len+y <= 10){
@@ -56,9 +56,9 @@ class Gameboard {
             }
         }
         if (count == len){
-            valid = true;
+            Valid = true;
         }
-        return valid;
+        return Valid;
     }
     string PlaceDirection(string d){
         bool success = false;
@@ -77,7 +77,9 @@ class Gameboard {
     public int[,] PlaceShip(int n, int x, int y,string d){
         Ship s = Ships[n];
         int len = s.Length;
-        if (d == "1"){
+        if (Valid==true){
+            Console.WriteLine("Ship Valid");
+            if (d == "1"){
             for (int i = 0;i<len;i++){
                 board[y+i,x] = 1;
                 s.X[i] = x;
@@ -88,7 +90,10 @@ class Gameboard {
                 board[y,x+i] = 1;
                 s.X[i] = x+i;
                 s.Y[i] = y;
+            }
         }
+        }else{
+            Console.WriteLine("Ship not Valid");
         }
         return board;
         }
