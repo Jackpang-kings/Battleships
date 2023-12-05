@@ -431,29 +431,32 @@ CREATE PROCEDURE DisplayOutcome(BOOLEAN result)
 ENDPROCEDURE
 ```
 ----
+
+----
 # Test Evidence
 ## Program
 - Testing classes: Ship, Gameboard and Player
 - Tested: Ship.Length, Gameboard.PlaceShip(), Gameboard.DisplayBoard(), Player.Name
 > This code is to test the function of Placing the ships on the board through entering the x, y coordinates. Then display the board out after the ship is placed
 ```
-public static void TestSetupPhrase(Player pl){
-    Console.Write($"{pl.Name}:\n");
-    pl.Gboard.PlaceShip(4,5,9,"2");
-    //return Ship Valid, ship in row 9, column 5, placed Horizontally
-    pl.Gboard.PlaceShip(4,5,9,"2");
-    //return Ship not Valid, ship in row 4, column 4
-    pl.Gboard.PlaceShip(2,0,9,"2");
-    //return Ship Valid, ship in row 9, column 0, placed Horizontally
-    pl.Gboard.PlaceShip(3,0,9,"1");
-    //return Ship not Valid
-    pl.Gboard.PlaceShip(3,0,5,"1");
-    //return Ship Valid, ship in row 5, column 0, placed Vertically
-    pl.Gboard.PlaceShip(1,0,0,"2");
-    //return Ship Valid, ship in row 0, column 0, placed Horizontally
-    pl.Gboard.PlaceShip(0,4,4,"1");
-    //return Ship Valid, ship in row 4, column 4, placed Vertically
-    DisplayBoard(pl.Gboard.Board);
+static void TestSetupPhase(Player pl){
+	Console.Write($"{pl.Name}:\n");
+	pl.Gboard.ValidShip(0,4,4,"1");
+	//return Ship Valid, ship in row 4, column 4, placed Vertically
+	pl.Gboard.ValidShip(1,0,0,"2");
+	//return Ship Valid, ship in row 0, column 0, placed Horizontally
+	pl.Gboard.ValidShip(2,0,9,"2");
+	//return Ship Valid, ship in row 9, column 0, placed Horizontally
+	pl.Gboard.ValidShip(3,0,9,"1");
+	//return Ship not Valid
+	pl.Gboard.ValidShip(3,0,5,"1");
+	//return Ship Valid, ship in row 5, column 0, placed Vertically
+	pl.Gboard.ValidShip(4,5,9,"2");
+	//return Ship Valid, ship in row 9, column 5, placed Horizontally
+	pl.Gboard.ValidShip(4,5,9,"2");
+	//return Ship not Valid
+	DisplayBoard(pl.Gboard.Board);
+	//Displays the Board
 }
 ```
 >Output should look something like this
@@ -462,13 +465,6 @@ public static void TestSetupPhrase(Player pl){
 >
 >1 represents the part of the ship so you cannot actually tell which ship is which if they all stuck to each other 
 ```
-Ship Valid
-Ship not Valid
-Ship Valid
-Ship not Valid
-Ship Valid
-Ship Valid
-Ship Valid
 +---+---+---+---+---+---+---+---+---+---+---+
 | -1| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |
 +---+---+---+---+---+---+---+---+---+---+---+
@@ -497,7 +493,7 @@ Ship Valid
 - Tested: Player.Shoot(), 
 > This code is to test the shooting phase of battleships
 ```
-public static void TestShPhase(Player sh, Player nsh){
+static void TestShPhase(Player sh, Player nsh){
     Console.WriteLine($"{sh.Name} Shooting -> {nsh.Name}");
     sh.Shoot(nsh,1,2);
     sh.Shoot(nsh,0,9);
@@ -572,3 +568,89 @@ Ship      Length    Damaged   Sunk
 4         4         0         False
 5         5         0         False
 ```
+- Testing: Player.CheckWin()
+- The Win condition works properly
+>Added an code which forces one player to win in order to test the code fully
+```
+static void ForceWin(Player sh,Player nsh){
+	//sh for shooter and nsh for nshooter
+	Console.WriteLine($"{sh.Name} Shooting -> {nsh.Name}");
+	//Shoots all the ship Cheat code
+	for (int i=0;i<10;i++){
+		for (int j=0;j<10;j++){
+			if (nsh.Gboard.Board[i,j]==1){
+				sh.Shoot(nsh,j,i);
+			}
+		}
+	}
+	// Display the Masked Version of the board, which displays where it shot
+	DisplayBoard(nsh.Mboard);
+	Console.WriteLine($"{nsh.Name} Board:");
+	//Display the actual board of the player getting shot
+	DisplayBoard(nsh.Gboard.Board);
+	Console.WriteLine($"{nsh.Name} Ships:");
+	//Display the board status of the player getting shot
+	nsh.Gboard.DisplayStatus();
+	sh.CheckWin(sh,nsh);
+}
+```
+> Output should look something like this
+```
+Player2 Shooting -> Player1
++---+---+---+---+---+---+---+---+---+---+---+
+| -1| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |
++---+---+---+---+---+---+---+---+---+---+---+
+| 0 | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
++---+---+---+---+---+---+---+---+---+---+---+
+| 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
++---+---+---+---+---+---+---+---+---+---+---+
+| 2 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
++---+---+---+---+---+---+---+---+---+---+---+
+| 3 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
++---+---+---+---+---+---+---+---+---+---+---+
+| 4 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++---+---+---+---+---+---+---+---+---+---+---+
+| 5 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++---+---+---+---+---+---+---+---+---+---+---+
+| 6 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
++---+---+---+---+---+---+---+---+---+---+---+
+| 7 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
++---+---+---+---+---+---+---+---+---+---+---+
+| 8 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
++---+---+---+---+---+---+---+---+---+---+---+
+| 9 | 1 | 1 | 1 | 0 | 0 | 1 | 1 | 1 | 1 | 1 |
++---+---+---+---+---+---+---+---+---+---+---+
+Player1 Board:
++---+---+---+---+---+---+---+---+---+---+---+
+| -1| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |
++---+---+---+---+---+---+---+---+---+---+---+
+| 0 | -1| -1| -1| 0 | 0 | 0 | 0 | 0 | 0 | 0 |
++---+---+---+---+---+---+---+---+---+---+---+
+| 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
++---+---+---+---+---+---+---+---+---+---+---+
+| 2 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
++---+---+---+---+---+---+---+---+---+---+---+
+| 3 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
++---+---+---+---+---+---+---+---+---+---+---+
+| 4 | 0 | 0 | 0 | 0 | -1| 0 | 0 | 0 | 0 | 0 |
++---+---+---+---+---+---+---+---+---+---+---+
+| 5 | -1| 0 | 0 | 0 | -1| 0 | 0 | 0 | 0 | 0 |
++---+---+---+---+---+---+---+---+---+---+---+
+| 6 | -1| 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
++---+---+---+---+---+---+---+---+---+---+---+
+| 7 | -1| 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
++---+---+---+---+---+---+---+---+---+---+---+
+| 8 | -1| 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
++---+---+---+---+---+---+---+---+---+---+---+
+| 9 | -1| -1| -1| 0 | 0 | -1| -1| -1| -1| -1|
++---+---+---+---+---+---+---+---+---+---+---+
+Player1 Ships:
+Ship      Length    Damaged   Sunk
+1         2         2         True
+2         3         3         True
+3         3         3         True
+4         4         4         True
+5         5         5         True
+Player2 Won
+```
+----
