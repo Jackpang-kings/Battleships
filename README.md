@@ -102,8 +102,6 @@ ENDFUNCTION
 
             +ValidShip()
 
-            +DisplayBoard()
-
             +DisplayStatus()
 
         }
@@ -122,12 +120,6 @@ PUBLIC Ships AS Ship[] get{ships}
 ### Constructor:
 ```
 PUBLIC Gameboard
-	DECLARE len AS INT = board.Length 
-	FOR INT i = 0 TO len
-		FOR INT j = 0 TO len
-			board[i,j] = 0
-		ENDFOR 
-	ENDFOR
 	ships[0] = new Ship(0,2)
 	ships[1] = new Ship(0,3)
 	ships[2] = new Ship(0,3)
@@ -137,15 +129,18 @@ PUBLIC Gameboard
 ### Methods:
 - Place
 	- In: int n //Length of the ship
-	- Out: int board
+	- Out: bool valid
 ```
-CREATE PROEDURE Place(INT n)
+CREATE FUNCTION Place(INT n)
 	//Enter x coordinates 0-9
 	DECLARE x AS INT = Program.CheckInput(USERINPUT)
 	//Enter y coordinates 0-9
 	DECLARE y AS INT = Program.CheckInput(USERINPUT)
-	board = PlaceShip(n,x,y,board)
-ENDPROCEDURE
+	//Enter d as direction vertical or horizontal
+	DECLARE d AS String = USERINPUT
+	valid = ValidShip(n,x,y,d)
+	RETURN valid
+ENDFUNCTION
 ```
 - PlaceDirection
 	- In: None
@@ -167,37 +162,31 @@ CREATE FUNCTION PlaceDirection()
 ENDFUNCTION
 ```
 - PlaceShip
-	- In: int n, int x, int y
-	- Out: int[10,10] board
+	- In: int n, int x, int y, STRING d
+	- Out: none
 ```
-CREATE FUNCTION PlaceShip(INT n, INT x, INT y)
+CREATE PROCEDURE PlaceShip(INT n, INT x, INT y, STRING d)
 	DECLARE s AS Ship = ships[n]
 	DECLARE len AS INT = s.Length
-	IF len+y > 9 OR len+x > 9 OR ValidShip(n,x,y,board) = false THEN
-		OUTPUT "CANNOT PUT SHIP THERE"
-		OUTPUT "ENTER x,y again"
-		Place(n)
+	IF d = "1" THEN
+		FOR INT i = 0 To len - 1
+			board[y+i,x] = ship[i]
+			ship[n].Y[i] = y+i
+			ship[n].X[i] = x
+		ENDFOR
+		
 	ELSE 
-		IF PLaceDirection() = "1" THEN
-			FOR INT i = 0 To len - 1
-				board[x,y+i] = ship[i]
-				ship[n].Y[i] = y+i
-				ship[n].X[i] = x
-			ENDFOR
-			
-		ELSE 
-			FOR INT i = 0 To len - 1
-				board[x+i,y] = 1
-				ship[n].X[i] = x+i
-				ship[n].Y[i] = y
-			ENDFOR
-		ENDIF
+		FOR INT i = 0 To len - 1
+			board[y,x+i] = 1
+			ship[n].X[i] = x+i
+			ship[n].Y[i] = y
+		ENDFOR
 	ENDIF
 	RETURN board
-ENDFUNCTION
+ENDPROCEDURE
 ```
 - ValidShip
-	- In: Int x, Int y, Int n
+	- In: Int x, Int y, Int n, STRING d
 	- Out: boolean valid
 ```
 CREATE FUNCTION ValidShip(int n, int x, int y)
@@ -213,19 +202,6 @@ CREATE FUNCTION ValidShip(int n, int x, int y)
 	ENDIF
 	RETURN valid
 ENDFUNCTION
-```
-- DisplayBoard
-	- In: none
-	- Out: none
-```
-CREATE PROCEDURE DisplayBoard()
-	DECLARE len AS INT = board.Length
-	FOR INT i = 0 To len - 1
-		FOR INT j = 0 To len - 1
-			OUTPUT "board[i,j]".PadRight
-		ENDFOR
-	ENDFOR
-ENDPROCEDURE
 ```
 - DisplayStatus
 	- In: none
@@ -264,8 +240,6 @@ classDiagram
 
         +CheckWin()
 
-		+MaskedBoard()
-
     }
 
 ```
@@ -287,14 +261,9 @@ PUBLIC Win AS BOOLEAN {get(win),set(win = value)}
 ### Constructor:
 ```
 PUBLIC Player(string n = "player")
+	Gboard = new Gameboard() 
 	Name = n
 	Win = w
-	DECLARE len AS INT = mboard.Length 
-	FOR INT i = 0 TO len
-		FOR INT j = 0 TO len
-			mboard[i,j] = 0
-		ENDFOR 
-	ENDFOR
 ```
 
 ### Methods:
@@ -331,35 +300,42 @@ CREATE PROCEDURE CheckWin(nshooter AS Player)
 	ENDIF
 ENDPROCEDURE
 ```
-- MaskedBoard
-	-  In: int [10,10] mboard
-	- Out: none
-```
-CREATE PROCEDURE MaskedBoard(int [10,10] mboard)
-	DECLARE len AS INT = mboard.Length
-	FOR INT i = 0 To len - 1
-		FOR INT j = 0 To len - 1
-			OUTPUT "mboard[i,j]".PadRight
-		ENDFOR
-	ENDFOR
-ENDPROCEDURE
-```
 ----
 ## Class Program
 ### Methods
 - Main()
+  - In: none
+  - Out:none
+```
+CREATE PRCOCEDURE Main()
+	DECLARE resume AS BOOLEAN = true
+	DECLARE opt AS STRING
+	WHILE(resume)
+		OUTPUT "1)Game mode 2)Test mode 3)Quit"
+		opt = USERINPUT
+		IF opt="1"
+			Game()
+		ELSE IF opt="2"
+			Test()
+		ELSE 
+			resume=false
+	ENDWHILE
+ENDPROCEDURE
+```
+- Game()
 	- In: none
 	- Out: none
 ```
-CREATE PROCEDURE Main()
+CREATE PROCEDURE Game()
+	OUTPUT "Welcome to BattleShips"
 	DECLARE player1 AS Player
 	DECLARE player2 AS Player
 	OUTPUT "ENTER 1st Player name"
 	DECLARE player1.Name AS STRING = USERINPUT
 	OUTPUT "ENTER 2nd Player name"
 	DECLARE player2.Name AS STRING = USERINPUT
-	SetPhase(player1)
-	SetPhase(player2)
+	SetupPhase(player1)
+	SetupPhase(player2)
 	WHILE player1.Win = false AND player2.Win = false
 		ShPhase(player1,player2)
 		ShPhase(player2,player1)
@@ -375,12 +351,29 @@ ENDPROCEDURE
 	- In: Player player
 	- Out: None
 ```
-CREATE PROCEDURE SetPhase(player AS Player)
-	OUTPUT "{player.Name} Setup your board:"
-	FOR i = 0 TO 4
-		Place(player.Gboard.ship[i].Length,player.Gboard.board)
-		i++
-	ENDFOR
+CREATE PROCEDURE SetupPhase(Player player)
+	OUTPUT "{player.Name}:"
+	DECLARE i AS INT = 0
+	WHILE i<5
+		DECLARE ch AS string
+		DECLARE valid AS BOOLEAN
+		OUTPUT "1)Enter Ship |{i+1}| 2)Displayboard"
+		ch = USERINPUT
+		IF ch="1"
+			valid=player.Gboard.Place(i)
+			IF (valid)
+				OUTPUT "Ship Valid"
+				i++
+			ELSE 
+				OUTPUT "Ship not Valid"
+			ENDIF
+		ELSEIF ch="2"
+			DisplayBoard(player.Gboard.Board)
+		ELSE
+			OUTPUT "Wrong Input"
+		ENDIF
+	ENDWHILE
+	DisplayBoard(player.Gboard.Board)
 ENDPROCEDURE
 ```
 
@@ -394,9 +387,9 @@ CREATE PROCEDURE ShPhase(shooter AS Player,nshooter AS Player)
 	DECLARE x AS INT = CheckInput(USERINPUT)
 	OUTPUT "ENTER the y coordinates to shoot"
 	DECLARE y AS INT = CheckInput(USERINPUT)
-	shooter.mboard[x,y] = 1
-	shooter.Gboard.Maskboard(shooter.mboard)
-	DisplayOutcome(nshooter.Shoot(x,y))
+	result=nshooter.Shoot(x,y)
+	shooter.Gboard.Maskboard(shooter.Mboard)
+	DisplayOutcome(nsh,result)
 	shooter.CheckWin(nshooter)
 ENDPROCEDURE
 ```
@@ -419,7 +412,7 @@ CREATE FUNCTION CheckInput(STRING x)
 ENDFUNCTION
 ```
 - DisplayOutcome
-	- In: boolean result _from Shoot_
+	- In: Player pl, boolean result _from Shoot_
 	- Out: none
 ```
 CREATE PROCEDURE DisplayOutcome(BOOLEAN result)
@@ -428,10 +421,71 @@ CREATE PROCEDURE DisplayOutcome(BOOLEAN result)
 	ELSE
 		OUTPUT "Nothing is hit"
 	ENDIF
+	pl.Gboard.DisplayStatus()
 ENDPROCEDURE
 ```
+- DisplayBoard()
+  - In: int[,] board
+  - Out: none
+```
+CREATE PROCEDURE DisplayBoard()
+	DECLARE len AS INT = board.GetLength(0)
+	line(len)
+	FOR INT x = -1 To len - 1
+		OUTPUT "|"
+		OUTPUT "{x}"
+	ENDFOR
+	FOR INT i = 0 To len - 1
+		OUTPUT "|"
+		OUTPUT "{i}"
+		FOR INT j = 0 To len - 1
+			OUTPUT "|"
+			OUTPUT "board[i,j]"
+		ENDFOR
+		OUTPUT "|"
+		OUTPUT ""
+	ENDFOR
+ENDPROCEDURE
+```
+- line()
+  - In: int len
+  - Out: none
+```
+CREATE PROCEDURE line(int len){
+    FOR INT i = 0 To len
+		OUTPUT "+---"
+	ENDFOR
+    OUTPUT "+"
+ENDPROCEDURE
+}
+```
 ----
-
+# Decomposition
+## Program 
+> Main()
+  - request for what mode is the game running in eg. Test mode or Game mode
+> Test()
+  - runs the testing code of the game to test all of the classes and methods
+  	- TestSetupPhase()
+		- Setup the board from preset values
+  	- TestShPhase()
+		- Shoots opponent's board from preset values
+  	- ForceWin()
+		- Shoots every ship on opponent's board
+> Game()
+  - runs the game until a player has won
+    - SetupPhase()
+      - Setup the board from userinput
+    - ShPhase
+      - Shoots opponent's board from userinput
+    - DisplayOutcome
+      - Shows if a ship is hit
+> CheckInput() 
+  - Checks all the userinput to check if it is correct format
+> DisplayBoard()
+  - Displays 2-dimensional integer array 
+> line()
+  - Creates new line for the DisplayBoard
 ----
 # Test Evidence
 ## Program

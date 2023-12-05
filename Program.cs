@@ -163,11 +163,12 @@ public static int CheckInput(string x){
         int y = 0;
         while (success == false){
             if (int.TryParse(x, out y) == true){
-                success = true;
+                if (y<=9){
+                    success = true;
+                }
             }else{
                 Console.WriteLine("Wrong input, Enter again");
-                string a = Console.ReadLine()!;
-                x = a;
+                x = Console.ReadLine()!;
             }
         }
         return y;
