@@ -27,15 +27,15 @@ class Player {
         }
         return outcome;
     }
-    public void CheckWin(Player player1, Player player2){
+    public void CheckWin(Player pl1, Player pl2){
         int counter = 0;
         for (int i = 0;i<5;i++){
-            if (player2.Gboard.Ships[i].Checksunk() == true){
+            if (pl2.Gboard.Ships[i].Checksunk() == true){
                 counter++;
             }
         }
         if (counter == 5){
-            player1.Win = true;
+            pl1.Win = true;
         }
     }
     }
