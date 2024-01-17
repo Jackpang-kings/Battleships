@@ -10,43 +10,33 @@ class Player {
     public int[,] Mboard {get{return mboard;}set{mboard = value;}}
     public bool Win {get{return win;}set{win = value;}}
     public Player(string n = "player"){
+        Gboard = new Gameboard();
         Name = n;
         Win = false;
-        int len = mboard.Length;
-        for (int i = 0;i<len;i++){
-            for (int j = 0;j<len;j++){
-                mboard[i,j] = 0;
-            } 
-        }
     }
-    public bool Shoot(Player player2, int x, int y){
+    public bool Shoot(Player pl, int x, int y){
         bool outcome = false;
-        for (int i = 0; i<player2.Gboard.Ships[i].Length;i++){
-            if (player2.Gboard.Ships[i].CheckHit(x,y,player2.Gboard.Ships[i]) == true){
-                player2.Gboard.Board[x,y] = player2.Gboard.Board[x,y] - 2;
+        int len = pl.Gboard.Ships.Length;
+        pl.Mboard[y,x] = 1;
+        for (int i = 0; i<len;i++){
+            if (pl.Gboard.Ships[i].CheckHit(x,y,pl.Gboard.Ships[i]) == true){
+                pl.Gboard.Board[y,x] = pl.Gboard.Board[y,x] - 2;
+                pl.Gboard.Ships[i].Checksunk();
                 outcome = true;
             }
         }
         return outcome;
     }
-    public void CheckWin(Player player1, Player player2){
+    public void CheckWin(Player pl1, Player pl2){
         int counter = 0;
         for (int i = 0;i<5;i++){
-            if (player2.Gboard.Ships[i].Checksunk() == true){
+            if (pl2.Gboard.Ships[i].Checksunk() == true){
                 counter++;
             }
         }
         if (counter == 5){
-            player1.Win = true;
+            pl1.Win = true;
         }
     }
-    public void MaskedBoard(int[,] mboard){
-    int len = mboard.Length;
-    for (int i = 0;i<len;i++){
-        for (int j = 0;j<len;j++){
-            Console.WriteLine($"{mboard[i,j]}".PadRight(10));
-        }  
     }
-    }
-} 
 }
