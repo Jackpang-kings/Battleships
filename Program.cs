@@ -48,7 +48,7 @@ class Program {
             Console.WriteLine($"1)Enter Ship |{i+1}| 2)Displayboard");
             ch = Console.ReadLine()!;
             if (ch=="1"){
-                Console.WriteLine($"Length:{player.Gboard.Ships[i+1].Length}");
+                Console.WriteLine($"Length:{player.Gboard.Ships[i].Length}");
                 Console.WriteLine("Hint: The x, y cooridinates are for the head of the ship");
                 Console.WriteLine("Hint: Direction 1:Vertical 2:Horizontal");
                 Console.Write($"Enter x,y,d:");
