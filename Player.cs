@@ -14,7 +14,10 @@ class Player {
         Name = n;
         Win = false;
     }
-    public bool Shoot(Player pl, int x, int y){
+    public bool Shoot(Player pl, string command){
+        string[] xy = command.Split(",");
+        int x = Convert.ToInt32(xy[0]);
+        int y = Convert.ToInt32(xy[1]);
         bool outcome = false;
         int len = pl.Gboard.Ships.Length;
         pl.Mboard[y,x] = 1;

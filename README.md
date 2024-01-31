@@ -61,8 +61,12 @@ class Gameboard{
 	class Program{
 		+Main()
 		+Game()
+		+SetupPhase()
+		+ShPhase()
+		+DisplayOutcome()
 		+Test()
-		+CheckInput()
+		+ValidShipFormat()
+		+CheckInput4ShFormat()
 		+DisplayBoard()
 		+Line()
 	}
@@ -141,66 +145,36 @@ PUBLIC Gameboard
 	ships[4] = new Ship(0,5)
 ```
 ### Methods:
-- Place
-	- In: int n //Length of the ship
-	- Out: bool valid
-```
-CREATE FUNCTION Place(INT n)
-	//Enter x coordinates 0-9
-	DECLARE x AS INT = Program.CheckInput(USERINPUT)
-	//Enter y coordinates 0-9
-	DECLARE y AS INT = Program.CheckInput(USERINPUT)
-	//Enter d as direction vertical or horizontal
-	DECLARE d AS String = USERINPUT
-	valid = ValidShip(n,x,y,d)
-	RETURN valid
-ENDFUNCTION
-```
-- PlaceDirection
-	- In: None
-	- Out: string d
-```
-CREATE FUNCTION PlaceDirection()
-	DECLARE d AS STRING
-	DECLARE success AS BOOLEAN = false
-	WHILE success = false
-		OUTPUT "1:Vertical 2:Horizontal"
-		d = USERINPUT
-		IF d = "1" OR d = "2" THEN
-			success = true
-			return d
-		ELSE
-			OUTPUT "Wrong Direction"
-		ENDIF
-	ENDWHILE
-ENDFUNCTION
-```
 - PlaceShip
-	- In: int n, int x, int y, STRING d
+	- In: Int n, String command, Bool valid
 	- Out: none
 ```
-CREATE PROCEDURE PlaceShip(INT n, INT x, INT y, STRING d)
-	DECLARE s AS Ship = ships[n]
-	DECLARE len AS INT = s.Length
-	IF d = "1" THEN
-		FOR INT i = 0 To len - 1
-			board[y+i,x] = ship[i]
-			ship[n].Y[i] = y+i
-			ship[n].X[i] = x
-		ENDFOR
-		
-	ELSE 
-		FOR INT i = 0 To len - 1
-			board[y,x+i] = 1
-			ship[n].X[i] = x+i
-			ship[n].Y[i] = y
-		ENDFOR
+CREATE PROCEDURE PlaceShip(Int n, String command, Bool valid)
+	IF valid
+		DECLARE commands AS String[] = command.Split(",")
+		DECLARE x AS Int = Convert2Int(commands[0])
+		DECLARE y AS Int = Convert2Int(commands[1])
+		DECLARE d AS String = commands[2]
+		DECLARE s AS Ship = ships[n]
+		DECLARE len AS INT = s.Length
+		IF d = "1" THEN
+			FOR INT i = 0 To len - 1
+				board[y+i,x] = ship[i]
+				ship[n].Y[i] = y+i
+				ship[n].X[i] = x
+			ENDFOR
+		ELSE 
+			FOR INT i = 0 To len - 1
+				board[y,x+i] = 1
+				ship[n].X[i] = x+i
+				ship[n].Y[i] = y
+			ENDFOR
+		ENDIF
 	ENDIF
-	RETURN board
 ENDPROCEDURE
 ```
 - ValidShip
-	- In: Int x, Int y, Int n, STRING d
+	- In: Int n, String command
 	- Out: boolean valid
 ```
 CREATE FUNCTION ValidShip(int n, int x, int y)
@@ -222,14 +196,9 @@ ENDFUNCTION
 	- Out: none
 ```
 CREATE PROCEDURE DisplayStatus()
-	FOR i = 0 TO 4
-		OUTPUT "{ships[i].Damaged}"
-		IF ships[i].Sunk = false THEN
-			OUTPUT "ship {ships[i].Length} Not Sunk"
-		ELSE 
-			OUTPUT "ship {ships[i].Length} SUNKED"
-		ENDIF
-	ENDFOR
+	DECLARE len AS Int = ships.Length
+	DECLARE status AS String = ""
+	status+="Ship"+"    "
 ENDPROCEDURE
 ```
 
@@ -442,13 +411,12 @@ ENDPROCEDURE
   - In: int len
   - Out: none
 ```
-CREATE PROCEDURE line(int len){
+CREATE PROCEDURE line(int len)
     FOR INT i = 0 To len
 		OUTPUT "+---"
 	ENDFOR
     OUTPUT "+"
 ENDPROCEDURE
-}
 ```
 ----
 # Decomposition
@@ -484,25 +452,30 @@ ENDPROCEDURE
 - Tested: Ship.Length, Gameboard.PlaceShip(), Gameboard.DisplayBoard(), Player.Name
 > This code is to test the function of Placing the ships on the board through entering the x, y coordinates. Then display the board out after the ship is placed
 ```
-static void TestSetupPhase(Player pl){
+CREATE PROCEDURE TestSetupPhase(Player pl)
 	Console.Write($"{pl.Name}:\n");
-	pl.Gboard.ValidShip(0,4,4,"1");
+	OUTPUT ValidShipFormat(0,pl,"4,4,1");
+	pl.Gboard.PlaceShip(0,"4,4,1",true);
 	//return Ship Valid, ship in row 4, column 4, placed Vertically
-	pl.Gboard.ValidShip(1,0,0,"2");
+	OUTPUT ValidShipFormat(1,pl,"0,0,2");
+	pl.Gboard.PlaceShip(1,"0,0,2",true);
 	//return Ship Valid, ship in row 0, column 0, placed Horizontally
-	pl.Gboard.ValidShip(2,0,9,"2");
+	OUTPUT ValidShipFormat(2,pl,"0,9,2");
+	pl.Gboard.PlaceShip(2,"0,9,2",true);
 	//return Ship Valid, ship in row 9, column 0, placed Horizontally
-	pl.Gboard.ValidShip(3,0,9,"1");
+	OUTPUT ValidShipFormat(3,pl,"0,9,1");
 	//return Ship not Valid
-	pl.Gboard.ValidShip(3,0,5,"1");
+	OUTPUT ValidShipFormat(3,pl,"0,5,1");
+	pl.Gboard.PlaceShip(3,"0,5,1",true);
 	//return Ship Valid, ship in row 5, column 0, placed Vertically
-	pl.Gboard.ValidShip(4,5,9,"2");
+	OUTPUT ValidShipFormat(4,pl,"5,9,2");
+	pl.Gboard.PlaceShip(4,"5,9,2",true);
 	//return Ship Valid, ship in row 9, column 5, placed Horizontally
-	pl.Gboard.ValidShip(4,5,9,"2");
+	OUTPUT ValidShipFormat(4,pl,"5,9,2");
 	//return Ship not Valid
-	DisplayBoard(pl.Gboard.Board);
+	OUTPUT DisplayBoard(pl.Gboard.Board);
 	//Displays the Board
-}
+ENDPROCEDURE
 ```
 >Output should look something like this
 >
@@ -510,6 +483,14 @@ static void TestSetupPhase(Player pl){
 >
 >1 represents the part of the ship so you cannot actually tell which ship is which if they all stuck to each other 
 ```
+Correct command
+Correct command
+Correct command
+Wrong command
+Correct command
+Correct command
+Wrong command
+
 +---+---+---+---+---+---+---+---+---+---+---+
 | -1| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |
 +---+---+---+---+---+---+---+---+---+---+---+
@@ -538,19 +519,33 @@ static void TestSetupPhase(Player pl){
 - Tested: Player.Shoot(), 
 > This code is to test the shooting phase of battleships
 ```
-static void TestShPhase(Player sh, Player nsh){
-    Console.WriteLine($"{sh.Name} Shooting -> {nsh.Name}");
-    sh.Shoot(nsh,1,2);
-    sh.Shoot(nsh,0,9);
-    sh.Shoot(nsh,1,9);
-    sh.Shoot(nsh,2,9);
-    sh.Shoot(nsh,3,9);
-    DisplayBoard(nsh.Mboard);
-    Console.WriteLine($"{nsh.Name} Board:");
-    DisplayBoard(nsh.Gboard.Board);
-    Console.WriteLine($"{nsh.Name} Ships:");
-    nsh.Gboard.DisplayStatus();
-}
+CREATE PROCEDURE TestShPhase(Player sh, Player nsh)
+	//sh for shooter and nsh for nshooter
+	OUTPUT "{sh.Name} Shooting -> {nsh.Name}"
+	//Player1.Shoot(Player2,x,y) Player2 is the player who is getting shot and Player1 is the one shooting, x,y is column, row
+	//I know it should be row, column for int[row,column], but don't have to effort to do that
+	//shoot row 1, column 2 and row 9, column 0-3
+	sh.Shoot(nsh,"1,2")
+	sh.Shoot(nsh,"0,9")
+	sh.Shoot(nsh,"1,9")
+	sh.Shoot(nsh,"2,9")
+	sh.Shoot(nsh,"3,9")
+	//shoot row 5, column 0-4
+	sh.Shoot(nsh,"0,5")
+	sh.Shoot(nsh,"1,5")
+	sh.Shoot(nsh,"2,5")
+	sh.Shoot(nsh,"3,5")
+	sh.Shoot(nsh,"4,5")
+	//Display the MaskedBoard of the player getting shot as the board getting checked is it
+	OUTPUT DisplayBoard(nsh.Mboard)
+	OUTPUT "{nsh.Name} Board:"
+	//Display the actual board of the player getting shot
+	OUTPUT DisplayBoard(nsh.Gboard.Board)
+	OUTPUT "{nsh.Name} Ships:"
+	//Display the board status of the player getting shot
+	OUTPUT nsh.Gboard.DisplayStatus()
+	sh.CheckWin(sh,nsh)
+ENDPROCEDURE
 ```
 >Output should look something like this
 >
@@ -559,7 +554,7 @@ static void TestShPhase(Player sh, Player nsh){
 ```
 Player1 Shooting -> Player2
 +---+---+---+---+---+---+---+---+---+---+---+
-| -1| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |
+| -1| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 +---+---+---+---+---+---+---+---+---+---+---+
 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
 +---+---+---+---+---+---+---+---+---+---+---+
@@ -571,7 +566,7 @@ Player1 Shooting -> Player2
 +---+---+---+---+---+---+---+---+---+---+---+
 | 4 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
 +---+---+---+---+---+---+---+---+---+---+---+
-| 5 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| 5 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
 +---+---+---+---+---+---+---+---+---+---+---+
 | 6 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
 +---+---+---+---+---+---+---+---+---+---+---+
@@ -581,11 +576,12 @@ Player1 Shooting -> Player2
 +---+---+---+---+---+---+---+---+---+---+---+
 | 9 | 1 | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
 +---+---+---+---+---+---+---+---+---+---+---+
+
 Player2 Board:
 +---+---+---+---+---+---+---+---+---+---+---+
-| -1| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |
+| -1| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 +---+---+---+---+---+---+---+---+---+---+---+
-| 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| 0 | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
 +---+---+---+---+---+---+---+---+---+---+---+
 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
 +---+---+---+---+---+---+---+---+---+---+---+
@@ -593,9 +589,9 @@ Player2 Board:
 +---+---+---+---+---+---+---+---+---+---+---+
 | 3 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
 +---+---+---+---+---+---+---+---+---+---+---+
-| 4 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| 4 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
 +---+---+---+---+---+---+---+---+---+---+---+
-| 5 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| 5 | -1| 0 | 0 | 0 | -1| 0 | 0 | 0 | 0 | 0 |
 +---+---+---+---+---+---+---+---+---+---+---+
 | 6 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
 +---+---+---+---+---+---+---+---+---+---+---+
@@ -605,39 +601,40 @@ Player2 Board:
 +---+---+---+---+---+---+---+---+---+---+---+
 | 9 | -1| -1| -1| 0 | 0 | 1 | 1 | 1 | 1 | 1 |
 +---+---+---+---+---+---+---+---+---+---+---+
+
 Player2 Ships:
 Ship      Length    Damaged   Sunk
-1         2         0         False
+1         2         1         False
 2         3         0         False
 3         3         3         True
-4         4         0         False
+4         4         1         False
 5         5         0         False
 ```
 - Testing: Player.CheckWin()
 - The Win condition works properly
 >Added an code which forces one player to win in order to test the code fully
 ```
-static void ForceWin(Player sh,Player nsh){
+CREATE PROCEDURE ForceWin(Player sh,Player nsh)
 	//sh for shooter and nsh for nshooter
-	Console.WriteLine($"{sh.Name} Shooting -> {nsh.Name}");
+	OUTPUT "{sh.Name} Shooting -> {nsh.Name}";
 	//Shoots all the ship Cheat code
-	for (int i=0;i<10;i++){
-		for (int j=0;j<10;j++){
-			if (nsh.Gboard.Board[i,j]==1){
-				sh.Shoot(nsh,j,i);
-			}
-		}
-	}
+	FOR INT i = 0 To 9
+		FOR INT j = 0 To 9
+			IF (nsh.Gboard.Board[i,j]==1) // There is a ship THEN
+				sh.Shoot(nsh,j,i)
+			ENDIF
+		ENDFOR
+	ENDFOR
 	// Display the Masked Version of the board, which displays where it shot
-	DisplayBoard(nsh.Mboard);
-	Console.WriteLine($"{nsh.Name} Board:");
+	OUTPUT DisplayBoard(nsh.Mboard)
+	OUTPUT "{nsh.Name} Board:"
 	//Display the actual board of the player getting shot
-	DisplayBoard(nsh.Gboard.Board);
-	Console.WriteLine($"{nsh.Name} Ships:");
+	OUTPUT DisplayBoard(nsh.Gboard.Board);
+	OUTPUT "{nsh.Name} Ships:"
 	//Display the board status of the player getting shot
-	nsh.Gboard.DisplayStatus();
-	sh.CheckWin(sh,nsh);
-}
+	OUTPUT nsh.Gboard.DisplayStatus()
+	sh.CheckWin(sh,nsh)
+ENDPROCEDURE
 ```
 > Output should look something like this
 ```

@@ -12,11 +12,11 @@ class Ship {
     public int[] X {get{return x;}set{x = value;}}
     public int[] Y {get{return y;}set{y = value;}}
     public Ship(int l = 1, int d = 1){
-        Damaged = d;
-        Length = l;
-        Sunk = false;
-        X = new int[l];
-        Y = new int[l];
+        damaged = d;
+        length = l;
+        sunk = false;
+        x = new int[l];
+        y = new int[l];
     }
     public bool Checksunk(){
         if (damaged == length){

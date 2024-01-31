@@ -45,16 +45,18 @@ class Program {
         int i = 0;
         while (i<5){
             string ch;
-            bool valid;
             Console.WriteLine($"1)Enter Ship |{i+1}| 2)Displayboard");
             ch = Console.ReadLine()!;
             if (ch=="1"){
-                valid = player.Gboard.Place(i);
-                if (!valid){
-                    Console.WriteLine("Ship not Valid");
-                    Console.WriteLine(DisplayBoard(player.Gboard.Board));
-                }else{
-                    Console.WriteLine("Ship Valid");
+                
+                Console.WriteLine($"Length:{player.Gboard.Ships[i+1].Length}");
+                Console.WriteLine("Hint: The x, y cooridinates are for the head of the ship");
+                Console.WriteLine("Hint: Direction 1:Vertical 2:Horizontal");
+                Console.Write($"Enter x,y,d:");
+                string xyd = Console.ReadLine()!;
+                if (ValidShipFormat(i,player,xyd)=="Correct command"){
+                    //PlaceShip
+                    player.Gboard.PlaceShip(i,xyd,true);
                     i++;
                 }
             }else if (ch=="2"){
@@ -68,119 +70,171 @@ class Program {
     
     public static void ShPhase(Player sh, Player nsh){
         Console.WriteLine($"{sh.Name} Shooting -> {nsh.Name}");
-        // x is the coordinate of the gameboard
-        Console.Write($"Enter x:");
-        int x = CheckInput(Console.ReadLine()!);
-        // y is the coordinate of the gameboard
-        Console.Write($"Enter y:");
-        int y = CheckInput(Console.ReadLine()!);
-        bool result;
-        result=sh.Shoot(nsh,x,y);
+        // x,y is the coordinate of the gameboard
+        Console.Write($"Enter x,y:");
+        string xy = CheckInput4ShFormat(Console.ReadLine()!);
+        bool result = false;
+        if (xy!="Wrong command"){
+            result=sh.Shoot(nsh,xy);
+        }
         Console.WriteLine(DisplayBoard(nsh.Mboard));
         Console.WriteLine(DisplayOutcome(nsh,result));
         sh.CheckWin(sh,nsh);
     }  
 
     public static string DisplayOutcome(Player pl, bool result){
-        string outcome = "";
+        string outcome;
         if (result){
-            outcome = "Hitted";
+            outcome = "Hitted\n";
         }else{
-            outcome = "Nothing is Hitted";
+            outcome = "Nothing is Hitted\n";
         }
         outcome += pl.Gboard.DisplayStatus();
         return outcome;
     }
 
-    public static void Test(){
-    Console.WriteLine("Welcome to BattleShips(test mode)");
-    Player pla1 = new Player("Jack");
-    Player pla2 = new Player("Don");   
-    TestSetupPhase(pla1);
-    TestSetupPhase(pla2);
-    TestShPhase(pla1,pla2);
-    ForceWin(pla2,pla1);
-    if (pla1.Win == true){
-        Console.WriteLine($"{pla1.Name} Won");
-    }else{
-        Console.WriteLine($"{pla2.Name} Won");
-    }
-    static void TestSetupPhase(Player pl){
-        Console.Write($"{pl.Name}:\n");
-        pl.Gboard.ValidShip(0,4,4,"1");
-        //return Ship Valid, ship in row 4, column 4, placed Vertically
-        pl.Gboard.ValidShip(1,0,0,"2");
-        //return Ship Valid, ship in row 0, column 0, placed Horizontally
-        pl.Gboard.ValidShip(2,0,9,"2");
-        //return Ship Valid, ship in row 9, column 0, placed Horizontally
-        pl.Gboard.ValidShip(3,0,9,"1");
-        //return Ship not Valid
-        pl.Gboard.ValidShip(3,0,5,"1");
-        //return Ship Valid, ship in row 5, column 0, placed Vertically
-        pl.Gboard.ValidShip(4,5,9,"2");
-        //return Ship Valid, ship in row 9, column 5, placed Horizontally
-        pl.Gboard.ValidShip(4,5,9,"2");
-        //return Ship not Valid
-        DisplayBoard(pl.Gboard.Board);
-        //Displays the Board
-    }
-    static void TestShPhase(Player sh, Player nsh){
-        //sh for shooter and nsh for nshooter
-        Console.WriteLine($"{sh.Name} Shooting -> {nsh.Name}");
-        //Player1.Shoot(Player2,x,y) Player2 is the player who is getting shot and Player1 is the one shooting, x,y is column, row
-        //I know it should be row, column for int[row,column], but don't have to effort to do that
-        //shoot row 1, column 2 and row 9, column 0-3
-        sh.Shoot(nsh,1,2);
-        sh.Shoot(nsh,0,9);
-        sh.Shoot(nsh,1,9);
-        sh.Shoot(nsh,2,9);
-        sh.Shoot(nsh,3,9);
-        //Display the MaskedBoard of the player getting shot as the board getting checked is it
-        DisplayBoard(nsh.Mboard);
-        Console.WriteLine($"{nsh.Name} Board:");
-        //Display the actual board of the player getting shot
-        DisplayBoard(nsh.Gboard.Board);
-        Console.WriteLine($"{nsh.Name} Ships:");
-        //Display the board status of the player getting shot
-        nsh.Gboard.DisplayStatus();
-        sh.CheckWin(sh,nsh);
-    }
-    static void ForceWin(Player sh,Player nsh){
-        //sh for shooter and nsh for nshooter
-        Console.WriteLine($"{sh.Name} Shooting -> {nsh.Name}");
-        //Shoots all the ship Cheat code
-        for (int i=0;i<10;i++){
-            for (int j=0;j<10;j++){
-                if (nsh.Gboard.Board[i,j]==1){
-                    sh.Shoot(nsh,j,i);
+    public static string ValidShipFormat(int n,Player player,string xyd){
+        // x is the coordinate of the gameboard, y is the coordinate of the gameboard, d is the direction of the ship  
+        try{
+            string[] commands = xyd.Split(",");
+            int y;
+            int count = 0;
+            for(int i = 0;i<commands.Length-1;i++){
+                if (int.TryParse(commands[i], out y)){
+                    if (y<=9){
+                        count++;
+                    }
                 }
             }
-        }
-        DisplayBoard(nsh.Mboard);
-        Console.WriteLine($"{nsh.Name} Board:");
-        //Display the actual board of the player getting shot
-        DisplayBoard(nsh.Gboard.Board);
-        Console.WriteLine($"{nsh.Name} Ships:");
-        //Display the board status of the player getting shot
-        nsh.Gboard.DisplayStatus();
-        sh.CheckWin(sh,nsh);
-    }
-}
-    
-    public static int CheckInput(string x){
-        bool success = false;
-        int y = 0;
-        while (success == false){
-            if (int.TryParse(x, out y) == true){
-                if (y<=9){
-                    success = true;
-                }
+            if ((count == 2)&&(commands[2]=="1"||commands[2]=="2")&& player.Gboard.ValidShip(n,xyd)){
+                return "Correct command";
             }else{
-                Console.WriteLine("Wrong input, Enter again");
-                x = Console.ReadLine()!;
+                return "Wrong command";
             }
+        }catch{
+            return "Wrong command";
         }
-        return y;
+    }
+
+    public static string CheckInput4ShFormat(string command){
+        try{
+            string[] commands = command.Split(",");
+            int y;
+            int count = 0;
+            int[] xy = new int[2];
+            for(int i = 0;i<commands.Length;i++){
+                if (int.TryParse(commands[i], out y)){
+                    if (y<=9){
+                        count++;
+                    }
+                }
+            }
+            if (count == 2){
+                return command;
+            }else{
+                return "Wrong command";
+            }
+        }catch{
+            return "Wrong command";
+        }
+    }
+
+    public static void Test(){
+        Console.WriteLine("Welcome to BattleShips(test mode)");
+        Player pla1 = new Player("Player1");
+        Player pla2 = new Player("Player2");   
+        TestSetupPhase(pla1);
+        TestSetupPhase(pla2);
+        // Both players has the same ships location
+        TestShPhase(pla1,pla2);
+        ForceWin(pla2,pla1);
+        if (pla1.Win == true){
+            Console.WriteLine($"{pla1.Name} Won");
+        }else if (pla2.Win == true){
+            Console.WriteLine($"{pla2.Name} Won");
+        }else{
+            Console.WriteLine("No player won");
+        }
+
+        static void TestSetupPhase(Player pl){
+            Console.Write($"{pl.Name}:\n");
+            Console.WriteLine(ValidShipFormat(0,pl,"4,4,1"));
+            // Correct command
+            pl.Gboard.PlaceShip(0,"4,4,1",true);
+            // ship in row 4, column 4, placed Vertically
+            Console.WriteLine(ValidShipFormat(1,pl,"0,0,2"));
+            // Correct command
+            pl.Gboard.PlaceShip(1,"0,0,2",true);
+            // ship in row 0, column 0, placed Horizontally
+            Console.WriteLine(ValidShipFormat(2,pl,"0,9,2"));
+            // Correct command
+            pl.Gboard.PlaceShip(2,"0,9,2",true);
+            // ship in row 9, column 0, placed Horizontally
+            Console.WriteLine(ValidShipFormat(3,pl,"0,9,1"));
+            // Wrong Command
+            Console.WriteLine(ValidShipFormat(3,pl,"0,5,1"));
+            // Correct command
+            pl.Gboard.PlaceShip(3,"0,5,1",true);
+            // ship in row 5, column 0, placed Vertically
+            Console.WriteLine(ValidShipFormat(4,pl,"5,9,2"));
+            // Correct command
+            pl.Gboard.PlaceShip(4,"5,9,2",true);
+            // ship in row 9, column 5, placed Horizontally
+            Console.WriteLine(ValidShipFormat(4,pl,"5,9,2"));
+            // Wrong Command
+            Console.WriteLine(DisplayBoard(pl.Gboard.Board));
+            //Displays the Board
+        }
+
+        static void TestShPhase(Player sh, Player nsh){
+            //sh for shooter and nsh for nshooter
+            Console.WriteLine($"{sh.Name} Shooting -> {nsh.Name}");
+            //Player1.Shoot(Player2,x,y) Player2 is the player who is getting shot and Player1 is the one shooting, x,y is column, row
+            //shoot row 1, column 2
+            sh.Shoot(nsh,"1,2");
+            //shoot row 9, column 0-3
+            sh.Shoot(nsh,"0,9");
+            sh.Shoot(nsh,"1,9");
+            sh.Shoot(nsh,"2,9");
+            sh.Shoot(nsh,"3,9");
+            //shoot row 5, column 0-4
+            sh.Shoot(nsh,"0,5");
+            sh.Shoot(nsh,"1,5");
+            sh.Shoot(nsh,"2,5");
+            sh.Shoot(nsh,"3,5");
+            sh.Shoot(nsh,"4,5");
+            //Display the MaskedBoard of the player getting shot as the board getting checked is it
+            Console.WriteLine(DisplayBoard(nsh.Mboard));
+            Console.WriteLine($"{nsh.Name} Board:");
+            //Display the actual board of the player getting shot
+            Console.WriteLine(DisplayBoard(nsh.Gboard.Board));
+            Console.WriteLine($"{nsh.Name} Ships:");
+            //Display the board status of the player getting shot
+            Console.WriteLine(nsh.Gboard.DisplayStatus());
+            sh.CheckWin(sh,nsh);
+        }
+        
+        static void ForceWin(Player sh,Player nsh){
+            //sh for shooter and nsh for nshooter
+            Console.WriteLine($"{sh.Name} Shooting -> {nsh.Name}");
+            //Shoots all the ship Cheat code
+            for (int i=0;i<10;i++){
+                for (int j=0;j<10;j++){
+                    if (nsh.Gboard.Board[i,j]==1){
+                        sh.Shoot(nsh,$"{j},{i}");
+                    }
+                }
+            }
+            Console.WriteLine(DisplayBoard(nsh.Mboard));
+            Console.WriteLine($"{nsh.Name} Board:");
+            //Display the actual board of the player getting shot
+            Console.WriteLine(DisplayBoard(nsh.Gboard.Board));
+            Console.WriteLine($"{nsh.Name} Ships:");
+            //Display the board status of the player getting shot
+            Console.WriteLine(nsh.Gboard.DisplayStatus());
+            sh.CheckWin(sh,nsh);
+        }
+
 }
     
     public static string DisplayBoard(int[,] board){

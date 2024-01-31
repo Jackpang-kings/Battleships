@@ -2,3 +2,17 @@ C:\Users\jpang18\Documents\CompSci\Battleships\obj\Debug\net7.0\Battleships.Gene
 C:\Users\jpang18\Documents\CompSci\Battleships\obj\Debug\net7.0\Battleships.AssemblyInfoInputs.cache
 C:\Users\jpang18\Documents\CompSci\Battleships\obj\Debug\net7.0\Battleships.AssemblyInfo.cs
 C:\Users\jpang18\Documents\CompSci\Battleships\obj\Debug\net7.0\Battleships.csproj.CoreCompileInputs.cache
+\\kings.internal\Students$\2018\jpang18\My Documents\Computer Science\Battleships\bin\Debug\net7.0\Battleships.exe
+\\kings.internal\Students$\2018\jpang18\My Documents\Computer Science\Battleships\bin\Debug\net7.0\Battleships.deps.json
+\\kings.internal\Students$\2018\jpang18\My Documents\Computer Science\Battleships\bin\Debug\net7.0\Battleships.runtimeconfig.json
+\\kings.internal\Students$\2018\jpang18\My Documents\Computer Science\Battleships\bin\Debug\net7.0\Battleships.dll
+\\kings.internal\Students$\2018\jpang18\My Documents\Computer Science\Battleships\bin\Debug\net7.0\Battleships.pdb
+\\kings.internal\Students$\2018\jpang18\My Documents\Computer Science\Battleships\obj\Debug\net7.0\Battleships.GeneratedMSBuildEditorConfig.editorconfig
+\\kings.internal\Students$\2018\jpang18\My Documents\Computer Science\Battleships\obj\Debug\net7.0\Battleships.AssemblyInfoInputs.cache
+\\kings.internal\Students$\2018\jpang18\My Documents\Computer Science\Battleships\obj\Debug\net7.0\Battleships.AssemblyInfo.cs
+\\kings.internal\Students$\2018\jpang18\My Documents\Computer Science\Battleships\obj\Debug\net7.0\Battleships.csproj.CoreCompileInputs.cache
+\\kings.internal\Students$\2018\jpang18\My Documents\Computer Science\Battleships\obj\Debug\net7.0\Battleships.dll
+\\kings.internal\Students$\2018\jpang18\My Documents\Computer Science\Battleships\obj\Debug\net7.0\refint\Battleships.dll
+\\kings.internal\Students$\2018\jpang18\My Documents\Computer Science\Battleships\obj\Debug\net7.0\Battleships.pdb
+\\kings.internal\Students$\2018\jpang18\My Documents\Computer Science\Battleships\obj\Debug\net7.0\Battleships.genruntimeconfig.cache
+\\kings.internal\Students$\2018\jpang18\My Documents\Computer Science\Battleships\obj\Debug\net7.0\ref\Battleships.dll
