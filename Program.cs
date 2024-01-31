@@ -121,7 +121,6 @@ class Program {
             string[] commands = command.Split(",");
             int y;
             int count = 0;
-            int[] xy = new int[2];
             for(int i = 0;i<commands.Length;i++){
                 if (int.TryParse(commands[i], out y)){
                     if (y<=9){

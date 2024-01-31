@@ -266,6 +266,8 @@ ENDPROCEDURE
 - Main()
   - In: none
   - Out:none
+
+This is the Menu of the game
 ```
 CREATE PRCOCEDURE Main()
 	DECLARE resume AS BOOLEAN = true
@@ -285,6 +287,8 @@ ENDPROCEDURE
 - Game()
 	- In: none
 	- Out: none
+
+The game program for players
 ```
 CREATE PROCEDURE Game()
 	OUTPUT "Welcome to BattleShips"
@@ -310,6 +314,8 @@ ENDPROCEDURE
 - SetupPhase
 	- In: Player player
 	- Out: None
+
+The setup ships program for players, loops until the all ship is placed, could not continue with the game if some ship are not placed yet.
 ```
 CREATE PROCEDURE SetupPhase(Player player)
 	OUTPUT "{player.Name}:"
@@ -340,6 +346,8 @@ ENDPROCEDURE
 - ShootingPhase
 	- In: Player shooter, Player nshooter
 	- Out: None
+
+The shooting program to attack each other after setup the ships 
 ```
 CREATE PROCEDURE ShPhase(shooter AS Player,nshooter AS Player)
 	OUTPUT "{shooter.Name}"
@@ -353,69 +361,115 @@ CREATE PROCEDURE ShPhase(shooter AS Player,nshooter AS Player)
 	shooter.CheckWin(nshooter)
 ENDPROCEDURE
 ```
-- CheckInput 
-	- In: string x _Whatever needs to be converted into INT 
-	- Out: int y
+- ValidShipFormat
+	- In: int n,Player player,string xyd
+	- Out: string
+
+Checks if the format of placing the ship is valid, note: doesn't check if the location is occupied or not. This is checked after the format is correct.
 ```
-CREATE FUNCTION CheckInput(STRING x)
-	DECLARE success AS BOOLEAN = false
-	WHILE success = false
-		IF CONVERTTOINT(x, out y) = true THEN
-			success = true
-		Else //ask again for input
-			OUTPUT "Wrong INPUT, Enter again"
-			a = USERINPUT
-			x = a
+CREATE FUNCTION ValidShipFormat(int n,Player player,string xyd)
+	Try
+		DECLARE commands AS string[] = xyd.Split(",")
+		DECLARE y AS int
+		DECLARE count AS int = 0
+		FOR INT i = 0 TO 1
+			IF int.TryParse(commands[i], out y)
+				IF y<=9
+					count++
+				ENDIF
+			ENDIF
+		ENDFOR
+		IF (count == 2)&&(commands[2]=="1"||commands[2]=="2")&& player.Gboard.ValidShip(n,xyd)
+			return "Correct command"
+		ELSE
+			return "Wrong command"
 		ENDIF
-	ENDWHILE
-	RETURN y
+	Catch
+		return "Wrong command"
 ENDFUNCTION
 ```
+- CheckInput4ShFormat
+	- In: string command
+	- Out: string
+
+Check if the shooting coordinates are between 0-9
+```
+CREATE FUNCTION CheckInput4ShFormat(string command)
+	Try
+		DECLARE commands AS string[] = xyd.Split(",")
+		DECLARE y AS int
+		DECLARE count AS int = 0
+		FOR INT i = 0 TO LEN(commands)
+			IF int.TryParse(commands[i], out y)
+				IF y<=9
+					count++
+				ENDIF
+			ENDIF
+		ENDIF
+		IF count == 2
+			return command
+		ELSE
+			return "Wrong command"
+		ENDIF
+	Catch
+		return "Wrong command"
+```
+
 - DisplayOutcome
 	- In: Player pl, boolean result _from Shoot_
-	- Out: none
+	- Out: string
 ```
-CREATE PROCEDURE DisplayOutcome(BOOLEAN result)
+CREATE PROCEDURE DisplayOutcome(Player pl,BOOLEAN result)
+	DECLARE outcome AS STRING
 	IF result = true
 		OUTPUT "Hitted"
 	ELSE
 		OUTPUT "Nothing is hit"
 	ENDIF
-	pl.Gboard.DisplayStatus()
+	outcome += pl.Gboard.DisplayStatus()
+	RETURN outcome
 ENDPROCEDURE
 ```
 - DisplayBoard()
   - In: int[,] board
-  - Out: none
+  - Out: string getboardAsString
+
+Display anyboard, either maskedboard or gameboard of both players
 ```
 CREATE PROCEDURE DisplayBoard()
 	DECLARE len AS INT = board.GetLength(0)
-	line(len)
+	DECLARE getboardAsString AS STRING = ""
+	getboardAsString+=line(len)
 	FOR INT x = -1 To len - 1
-		OUTPUT "|"
-		OUTPUT "{x}"
+		getboardAsString+= "|"
+		getboardAsString+= x
 	ENDFOR
 	FOR INT i = 0 To len - 1
-		OUTPUT "|"
-		OUTPUT "{i}"
+		getboardAsString+= "|"
+		getboardAsString+= i
 		FOR INT j = 0 To len - 1
-			OUTPUT "|"
-			OUTPUT "board[i,j]"
+			getboardAsString+= "|"
+			getboardAsString+= "board[i,j]"
 		ENDFOR
-		OUTPUT "|"
-		OUTPUT ""
+		getboardAsString+= "|"
+		getboardAsString+= ""
 	ENDFOR
+	RETURN getboardAsString
 ENDPROCEDURE
 ```
-- line()
+- Line()
   - In: int len
-  - Out: none
+  - Out: string line
+
+Makes a line to the start and the end of the displayboard
 ```
 CREATE PROCEDURE line(int len)
+	DECLARE line AS string
     FOR INT i = 0 To len
-		OUTPUT "+---"
+		line+="+---"
 	ENDFOR
-    OUTPUT "+"
+    line+="+"
+	RETURN line
 ENDPROCEDURE
 ```
 ----
@@ -439,8 +493,10 @@ ENDPROCEDURE
   - Shoots opponent's board from userinput
 > DisplayOutcome 
   - Return the outcome of after shoot
-> CheckInput() 
-  - Checks all the userinput to check if it is correct format
+> CheckInput4ShFormat()
+  - Checks userinput for shooting phase to check if it is correct format
+> ValidShipFormat()
+  - Checks userinput for setup phase to chec if it is correct format
 > DisplayBoard()
   - Return the board As a string
 > Line()
