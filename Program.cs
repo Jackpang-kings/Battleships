@@ -48,17 +48,18 @@ class Program {
             Console.WriteLine($"1)Enter Ship |{i+1}| 2)Displayboard");
             ch = Console.ReadLine()!;
             if (ch=="1"){
-                
                 Console.WriteLine($"Length:{player.Gboard.Ships[i+1].Length}");
                 Console.WriteLine("Hint: The x, y cooridinates are for the head of the ship");
                 Console.WriteLine("Hint: Direction 1:Vertical 2:Horizontal");
                 Console.Write($"Enter x,y,d:");
                 string xyd = Console.ReadLine()!;
-                if (ValidShipFormat(i,player,xyd)=="Correct command"){
+                string result = ValidShipFormat(i,player,xyd);
+                if (result=="Correct command"){
                     //PlaceShip
                     player.Gboard.PlaceShip(i,xyd,true);
-                    i++;
+                    i++;    
                 }
+                Console.WriteLine(result);
             }else if (ch=="2"){
                 Console.WriteLine(DisplayBoard(player.Gboard.Board));
             }else{

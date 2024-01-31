@@ -326,20 +326,20 @@ CREATE PROCEDURE SetupPhase(Player player)
 		OUTPUT "1)Enter Ship |{i+1}| 2)Displayboard"
 		ch = USERINPUT
 		IF ch="1"
-			valid=player.Gboard.Place(i)
-			IF (valid)
-				OUTPUT "Ship Valid"
+			DECLARE xyd AS String = USERINPUT
+			DECLARE result AS String = ValidShipFormat(i,player.xyd)
+			IF result == "Corret command"
+				player.Gboard.PlaceShip(i,xyd,true)
 				i++
-			ELSE 
-				OUTPUT "Ship not Valid"
 			ENDIF
+			OUTPUT result
 		ELSEIF ch="2"
-			DisplayBoard(player.Gboard.Board)
+			OUTPUT DisplayBoard(player.Gboard.Board)
 		ELSE
 			OUTPUT "Wrong Input"
 		ENDIF
 	ENDWHILE
-	DisplayBoard(player.Gboard.Board)
+	OUTPUT DisplayBoard(player.Gboard.Board)
 ENDPROCEDURE
 ```
 
@@ -351,14 +351,14 @@ The shooting program to attack each other after setup the ships
 ```
 CREATE PROCEDURE ShPhase(shooter AS Player,nshooter AS Player)
 	OUTPUT "{shooter.Name}"
-	OUTPUT "ENTER the x coordinates to shoot"
-	DECLARE x AS INT = CheckInput(USERINPUT)
-	OUTPUT "ENTER the y coordinates to shoot"
-	DECLARE y AS INT = CheckInput(USERINPUT)
-	result=nshooter.Shoot(x,y)
-	shooter.Gboard.Maskboard(shooter.Mboard)
-	DisplayOutcome(nsh,result)
-	shooter.CheckWin(nshooter)
+	OUTPUT "ENTER the x,y coordinates to shoot"
+	DECLARE xy AS string = CheckInput4ShFormat(USERINPUT)
+	IF (xy!="Wrong command")
+		result=nshooter.Shoot(nsh,xy)
+	ENDIF
+	OUTPUT (nsh.Mboard)
+	OUTPUT DisplayOutcome(nsh,result)
+	sh.CheckWin(sh,nsh)
 ENDPROCEDURE
 ```
 - ValidShipFormat
