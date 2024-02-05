@@ -509,27 +509,27 @@ ENDPROCEDURE
 > This code is to test the function of Placing the ships on the board through entering the x, y coordinates. Then display the board out after the ship is placed
 ```
 CREATE PROCEDURE TestSetupPhase(Player pl)
-	Console.Write($"{pl.Name}:\n");
-	OUTPUT ValidShipFormat(0,pl,"4,4,1");
-	pl.Gboard.PlaceShip(0,"4,4,1",true);
+	Console.Write($"{pl.Name}:\n")
+	OUTPUT ValidShipFormat(0,pl,"4,4,1")
+	pl.Gboard.PlaceShip(0,"4,4,1",true)
 	//return Ship Valid, ship in row 4, column 4, placed Vertically
-	OUTPUT ValidShipFormat(1,pl,"0,0,2");
-	pl.Gboard.PlaceShip(1,"0,0,2",true);
+	OUTPUT ValidShipFormat(1,pl,"0,0,2")
+	pl.Gboard.PlaceShip(1,"0,0,2",true)
 	//return Ship Valid, ship in row 0, column 0, placed Horizontally
-	OUTPUT ValidShipFormat(2,pl,"0,9,2");
-	pl.Gboard.PlaceShip(2,"0,9,2",true);
+	OUTPUT ValidShipFormat(2,pl,"0,9,2")
+	pl.Gboard.PlaceShip(2,"0,9,2",true)
 	//return Ship Valid, ship in row 9, column 0, placed Horizontally
-	OUTPUT ValidShipFormat(3,pl,"0,9,1");
+	OUTPUT ValidShipFormat(3,pl,"0,9,1")
 	//return Ship not Valid
-	OUTPUT ValidShipFormat(3,pl,"0,5,1");
-	pl.Gboard.PlaceShip(3,"0,5,1",true);
+	OUTPUT ValidShipFormat(3,pl,"0,5,1")
+	pl.Gboard.PlaceShip(3,"0,5,1",true)
 	//return Ship Valid, ship in row 5, column 0, placed Vertically
-	OUTPUT ValidShipFormat(4,pl,"5,9,2");
-	pl.Gboard.PlaceShip(4,"5,9,2",true);
+	OUTPUT ValidShipFormat(4,pl,"5,9,2")
+	pl.Gboard.PlaceShip(4,"5,9,2",true)
 	//return Ship Valid, ship in row 9, column 5, placed Horizontally
-	OUTPUT ValidShipFormat(4,pl,"5,9,2");
+	OUTPUT ValidShipFormat(4,pl,"5,9,2")
 	//return Ship not Valid
-	OUTPUT DisplayBoard(pl.Gboard.Board);
+	OUTPUT DisplayBoard(pl.Gboard.Board)
 	//Displays the Board
 ENDPROCEDURE
 ```
@@ -752,3 +752,82 @@ Ship      Length    Damaged   Sunk
 Player2 Won
 ```
 ----
+|**Check xyd Command**|**Description**|**Output**|
+|--|--|--|
+|ValidShipFormat(0,pl,"1,2,2")| Ship[0] could be put in column 1, row 2 in a horizontal direction|Correct Command
+|ValidShipFormat(3,pl,"0,5,1")| Ship[3] could be put in column 0, row 5 in a vertical direction|Correct Command
+|ValidShipFormat(4,pl,"5,9,2")| Ship[4] could be put in column 5, row 9 in a horizontal direction|Correct command
+|ValidShipFormat(2,pl,"5,9,2")| Ship[2] could not be put in board, because Ship[4] is already in the position| Wrong command
+
+|**Setup xyd Command**|**Description**
+|--| -- |
+|player.Gboard.PlaceShip(0,"1,2,2",true)| Placed the ship[0] in column 1, row 2 in a horizontal direction
+|player.Gboard.PlaceShip(1,"0,0,2",true)| Placed the ship[1] in column 0, row 0 in a horizontal direction
+|player.Gboard.PlaceShip(3,"0,5,1",true)| Placed the ship[3] in column 0, row 5 in a vertical direction
+```
+				+---+---+---+---+---+---+---+---+---+---+---+
+				| -1| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | <---- This line is the column
+				+---+---+---+---+---+---+---+---+---+---+---+
+	This		| 0 | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+	Line		+---+---+---+---+---+---+---+---+---+---+---+
+	is  		| 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+	the 		+---+---+---+---+---+---+---+---+---+---+---+
+	row 		| 2 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+				+---+---+---+---+---+---+---+---+---+---+---+
+				| 3 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+				+---+---+---+---+---+---+---+---+---+---+---+
+				| 4 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+				+---+---+---+---+---+---+---+---+---+---+---+
+				| 5 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+				+---+---+---+---+---+---+---+---+---+---+---+
+				| 6 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+				+---+---+---+---+---+---+---+---+---+---+---+
+				| 7 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+				+---+---+---+---+---+---+---+---+---+---+---+
+				| 8 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+				+---+---+---+---+---+---+---+---+---+---+---+
+				| 9 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+				+---+---+---+---+---+---+---+---+---+---+---+
+```
+
+**Shooting Coordinates** | **Description**
+--|--
+1,2| Check the opponent's board if their board[2,1] has a ship
+3,4| Check the opponent's board if their board[4,3] has a ship
+
+### Example Game
+Assume both players have the same board as 
+```
++---+---+---+---+---+---+---+---+---+---+---+
+| -1| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |
++---+---+---+---+---+---+---+---+---+---+---+
+| 0 | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
++---+---+---+---+---+---+---+---+---+---+---+
+| 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
++---+---+---+---+---+---+---+---+---+---+---+
+| 2 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
++---+---+---+---+---+---+---+---+---+---+---+
+| 3 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
++---+---+---+---+---+---+---+---+---+---+---+
+| 4 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++---+---+---+---+---+---+---+---+---+---+---+
+| 5 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
++---+---+---+---+---+---+---+---+---+---+---+
+| 6 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
++---+---+---+---+---+---+---+---+---+---+---+
+| 7 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
++---+---+---+---+---+---+---+---+---+---+---+
+| 8 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
++---+---+---+---+---+---+---+---+---+---+---+
+| 9 | 1 | 1 | 1 | 0 | 0 | 1 | 1 | 1 | 1 | 1 |
++---+---+---+---+---+---+---+---+---+---+---+
+```
+
+Shooting Phase Command | Outcome
+--|--|
+1,1|Nothing is hit|
+0,1|Hitted|
+9,9|Hitted|
+8,8|Nothing is hit|
+4,5|Hitted|
+7,8|Nothing is hit|
